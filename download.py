@@ -7,26 +7,20 @@ import csv
 ########################################################################
 #
 # This script downloads all videos within the YouTube BoundingBoxes
-# dataset and parses them out into single frames for easy input to 
-# single-frame benchmarks.
-#
-########################################################################
-# 
-# The data is parsed into the specified download directory as follows:
-#
-# dl_dir/class_id/youtube_id+object_id/time_stamp.jpeg
+# dataset and cuts them to the defined clip size. It is accompanied by 
+# a second script which parses the videos into single frames.
 #
 ########################################################################
 
-# Specify the directory to download dataset to:
-dl_dir = '~/datasets/youtube-bb/'
+# Specify the directory to download the videos into:
+dl_dir = '~/datasets/youtube-bb/videos/'
 
 # The data sets to be downloaded
 d_sets = ['yt_bb_classification_train']
-'''d_sets = ['yt_bb_classification_train',
-          'yt_bb_classification_validation',
-          'yt_bb_detection_train',
-          'yt_bb_detection_validation']'''
+#d_sets = ['yt_bb_classification_train',
+#          'yt_bb_classification_validation',
+#          'yt_bb_detection_train',
+#          'yt_bb_detection_validation']
 
 # Host location of segment lists
 web_host = 'https://research.google.com/youtube-bb/'
@@ -49,6 +43,9 @@ class video_clip(object):
               self.class_id+', '+ \
               self.obj_id+']\n')
 
+# Make the download directory if it doesn't already exist
+call('mkdir -p '+dl_dir,shell=True)
+
 # For each of the four datasets
 for d_set in d_sets:
   if ('classification' in d_set):
@@ -69,8 +66,9 @@ for d_set in d_sets:
     annotations = list(reader)
 
   current_clip_name = ['blank']
-  clip_started      = False
   clips             = []
+
+
   # Parse annotations into list of clips with names, youtube ids, start
   # times and stop times
   for idx, annotation in enumerate(annotations):
@@ -82,36 +80,31 @@ for d_set in d_sets:
     yt_id    = annotation[0]
     class_id = annotation[2]
 
-    clip_name = yt_id+'_'+class_id+'_'+obj_id
+    clip_name = yt_id+':'+class_id+':'+obj_id
                 
     # If this is a new clip
     if clip_name != current_clip_name:
-      current_clip_name = clip_name
-      # If this clip hasn't started yet
-      if clip_started == False:
-        clip_start = annotation[1]
+      
+      # Update the finishing clip
+      if idx != 0: # If this isnt the first clip 
+        clips[-1].stop = annotations[idx-1][1]
 
-        # Add the clip to the list of clips
-        clips.append( video_clip( \
-          clip_name, \
-          yt_id, \
-          clip_start, \
-          '0', \
-          class_id, \
-          obj_id ) )
-        
-        clip_started = True
-      # STILL NEED TO END THE CLIP
-      # If this clip is finishing
-      elif clip_started == True:
-      #  clip_stop = annotation[1]
-      #  # Update the clip
-      #  clips[-1].stop = clip_stop
-        clip_started = False
+      # Add the starting clip
+      clip_start = annotation[1]
+      clips.append( video_clip( \
+        clip_name, \
+        yt_id, \
+        clip_start, \
+        '0', \
+        class_id, \
+        obj_id ) )
+      
+      # Update the current clip name
+      current_clip_name = clip_name 
 
-  selection = clips[:5]
-  for clip in selection:
-    clip.print_all()
+  # Update the final clip with its stop time
+  clips[-1].stop = annotations[-1][1]
+ 
 
 
 
