@@ -1,6 +1,3 @@
-from pytube import YouTube
-from subprocess import call
-import csv
 
 ########################################################################
 # YouTube BoundingBox Downloader
@@ -12,15 +9,22 @@ import csv
 #
 ########################################################################
 
+import imageio
+imageio.plugins.ffmpeg.download()
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+from subprocess import call
+from pytube import YouTube
+import sys
+import csv
+
 # Specify the directory to download the videos into:
-dl_dir = '~/datasets/youtube-bb/videos/'
+dl_dir = '/home/mbuckler/datasets/youtube-bb/videos/'
 
 # The data sets to be downloaded
-d_sets = ['yt_bb_classification_train']
-#d_sets = ['yt_bb_classification_train',
-#          'yt_bb_classification_validation',
-#          'yt_bb_detection_train',
-#          'yt_bb_detection_validation']
+d_sets = ['yt_bb_classification_train',
+          'yt_bb_classification_validation',
+          'yt_bb_detection_train',
+          'yt_bb_detection_validation']
 
 # Host location of segment lists
 web_host = 'https://research.google.com/youtube-bb/'
@@ -48,18 +52,23 @@ call('mkdir -p '+dl_dir,shell=True)
 
 # For each of the four datasets
 for d_set in d_sets:
+
+  # Make the directory for this dataset
+  d_set_dir = dl_dir+'/'+d_set+'/'
+  call('mkdir -p '+d_set_dir,shell=True)
+
   if ('classification' in d_set):
     class_or_det = 'class'
   elif ('detection' in d_set):
     class_or_det = 'det'
 
   # Download & extract the annotation list
-  print ('Now downloading annotations for '+d_set)
+  print ('Downloading annotations for '+d_set+'...')
   call('wget '+'\"'+web_host+d_set+'.csv.gz'+'\"',shell=True)
-  print ('Now unzipping annotations for '+d_set)
+  print ('Unzipping annotations for '+d_set+'...')
   call('gzip -d -f '+d_set+'.csv.gz',shell=True)
 
-  print ('Now parsing '+d_set+' annotations into clip data')
+  print ('Parsing '+d_set+' annotations into clip data...')
   # Parse csv data
   with open((d_set+'.csv'), 'rt') as f:
     reader      = csv.reader(f)
@@ -104,8 +113,23 @@ for d_set in d_sets:
 
   # Update the final clip with its stop time
   clips[-1].stop = annotations[-1][1]
- 
 
+  print('Downloading and cutting videos to size...') 
+  # For each video clip
+  for clip in clips:
+    # Use pytube
+    yt = YouTube('http://youtu.be/'+clip.yt_id)
+    yt.set_filename('temp_vid')
 
+    # Get the highest resolution available
+    video = yt.filter('mp4')[-1]
+    video.download(d_set_dir)
 
+    # Cut out the clip within the downloaded video
+    ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
+                           int(clip.start)/1000, \
+                           int(clip.stop)/1000, \
+                           targetname=(d_set_dir+clip.name+'.mp4'))
 
+    # Remove the temporary video
+    call('rm -rf '+d_set_dir+'temp_vid.mp4')
