@@ -17,13 +17,13 @@
 #
 ########################################################################
 
+from __future__ import unicode_literals
 import imageio
 imageio.plugins.ffmpeg.download()
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from subprocess import call
-from pytube import YouTube
+import youtube_dl
 import socket
-import pytube
 import os.path
 import sys
 import csv
@@ -128,22 +128,34 @@ for d_set in d_sets:
   # For each video clip
   for clip_idx, clip in enumerate(clips):
     # Inform user of progress
-    print(d_set+': Downloading & cutting video ['+ \
+    print('\n'+d_set+': Downloading & cutting video ['+ \
             str(clip_idx)+'/'+str(len(clips))+']: '+ \
-            clip.name)
-      
-    # Use pytube to download the video
+            clip.name+'\n')
+
+    # Make the class directory if it doesn't exist yet
+    class_dir = d_set_dir+'/'+str(clip.class_id)
+    call('mkdir -p '+class_dir,shell=True)
+
+    # Use youtube_dl to download the video
+    ydl_opts = {
+      # Choose the best quality available
+      'format': \
+        'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]',
+      'outtmpl': d_set_dir+'/temp_vid.%(ext)s'
+    }
+    ydl = youtube_dl.YoutubeDL(ydl_opts)
+
     try:
-      yt = YouTube('http://youtu.be/'+clip.yt_id)
+      ydl.download(['http://youtu.be/'+clip.yt_id])
     # If a dead link, skip
-    except pytube.exceptions.PytubeError:
+    except youtube_dl.utils.DownloadError:
       print("Dead YouTube link")
       continue
     # If timed out, retry one more time
     except socket.error:
       try:
-        yt = YouTube('http://youtu.be/'+clip.yt_id)
-      except pytube.exceptions.PytubeError:
+          ydl.download(['http://youtu.be/'+clip.yt_id])
+      except youtube_dl.utils.DownloadError:
         print("Dead YouTube link")
         continue
       # If timed out twice, skip
@@ -151,24 +163,15 @@ for d_set in d_sets:
         print("Timed out twice")
         continue
 
-    yt.set_filename('temp_vid')
+    # Verify that the file has been downloaded. Skip otherwise
+    if os.path.exists(d_set_dir+'temp_vid.mp4'): 
+      # Cut out the clip within the downloaded video and save the clip 
+      # in the correct class directory
+      ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
+                             int(clip.start)/1000, \
+                             int(clip.stop)/1000, \
+                             targetname=(class_dir+'/'+clip.name+'.mp4'))
 
-    # Make the class directory if it doesn't exist yet
-    class_dir = d_set_dir+'/'+str(clip.class_id)
-    call('mkdir -p '+class_dir,shell=True)
-
-    # Get the highest resolution available
-    video = yt.filter('mp4')[-1]
-    video.download(d_set_dir)
-
-    # Cut out the clip within the downloaded video and save the clip 
-    # in the correct class directory
-    ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
-                           int(clip.start)/1000, \
-                           int(clip.stop)/1000, \
-                           targetname=(class_dir+'/'+clip.name+'.mp4'))
-
-    # Remove the temporary video
-    call('rm -rf '+d_set_dir+'temp_vid.mp4',shell=True)
-
+      # Remove the temporary video
+      call('rm -rf '+d_set_dir+'temp_vid.mp4',shell=True)
 
