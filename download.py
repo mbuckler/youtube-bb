@@ -14,6 +14,7 @@ imageio.plugins.ffmpeg.download()
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from subprocess import call
 from pytube import YouTube
+import pytube
 import os.path
 import sys
 import csv
@@ -121,23 +122,27 @@ for d_set in d_sets:
     print(d_set+': Downloading & cutting video ['+ \
             str(clip_idx)+'/'+str(len(clips))+']')
       
-    # Use pytube
-    yt = YouTube('http://youtu.be/'+clip.yt_id)
+    # Use pytube to download the video
+    try:
+      yt = YouTube('http://youtu.be/'+clip.yt_id)
+    except pytube.exceptions.PytubeError:
+      print("Dead YouTube link")
+      # If a dead link, skip
+      continue
+
     yt.set_filename('temp_vid')
 
     # Get the highest resolution available
     video = yt.filter('mp4')[-1]
     video.download(d_set_dir)
 
-    # If the download was successful (video still exists on YouTube)
-    if (os.path.exists(d_set_dir+'temp_vid.mp4')):
-      # Cut out the clip within the downloaded video
-      ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
-                             int(clip.start)/1000, \
-                             int(clip.stop)/1000, \
-                             targetname=(d_set_dir+clip.name+'.mp4'))
+    # Cut out the clip within the downloaded video
+    ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
+                           int(clip.start)/1000, \
+                           int(clip.stop)/1000, \
+                           targetname=(d_set_dir+clip.name+'.mp4'))
 
-      # Remove the temporary video
-      call('rm -rf '+d_set_dir+'temp_vid.mp4',shell=True)
+    # Remove the temporary video
+    call('rm -rf '+d_set_dir+'temp_vid.mp4',shell=True)
 
 
