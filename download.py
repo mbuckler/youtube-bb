@@ -5,7 +5,13 @@
 #
 # This script downloads all videos within the YouTube BoundingBoxes
 # dataset and cuts them to the defined clip size. It is accompanied by 
-# a second script which parses the videos into single frames.
+# a second script which decodes the videos into single frames.
+#
+########################################################################
+#
+# The data is placed into the following directory structure:
+#
+# dl_dir/videos/d_set/class_id/clip_name.mp4
 #
 ########################################################################
 
@@ -129,18 +135,22 @@ for d_set in d_sets:
       print("Dead YouTube link")
       # If a dead link, skip
       continue
-
     yt.set_filename('temp_vid')
+
+    # Make the class directory if it doesn't exist yet
+    class_dir = d_set_dir+'/'+str(clip.class_id)
+    call('mkdir -p '+class_dir,shell=True)
 
     # Get the highest resolution available
     video = yt.filter('mp4')[-1]
     video.download(d_set_dir)
 
-    # Cut out the clip within the downloaded video
+    # Cut out the clip within the downloaded video and save the clip 
+    # in the correct class directory
     ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
                            int(clip.start)/1000, \
                            int(clip.stop)/1000, \
-                           targetname=(d_set_dir+clip.name+'.mp4'))
+                           targetname=(class_dir+'/'+clip.name+'.mp4'))
 
     # Remove the temporary video
     call('rm -rf '+d_set_dir+'temp_vid.mp4',shell=True)
