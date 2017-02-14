@@ -7,6 +7,8 @@
 # dataset and cuts them to the defined clip size. It is accompanied by 
 # a second script which decodes the videos into single frames.
 #
+# Author: Mark Buckler
+#
 ########################################################################
 #
 # The data is placed into the following directory structure:
