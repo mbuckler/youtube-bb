@@ -14,6 +14,7 @@ imageio.plugins.ffmpeg.download()
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from subprocess import call
 from pytube import YouTube
+import os.path
 import sys
 import csv
 
@@ -63,12 +64,12 @@ for d_set in d_sets:
     class_or_det = 'det'
 
   # Download & extract the annotation list
-  print ('Downloading annotations for '+d_set+'...')
+  print (d_set+': Downloading annotations...')
   call('wget '+'\"'+web_host+d_set+'.csv.gz'+'\"',shell=True)
-  print ('Unzipping annotations for '+d_set+'...')
+  print (d_set+': Unzipping annotations...')
   call('gzip -d -f '+d_set+'.csv.gz',shell=True)
 
-  print ('Parsing '+d_set+' annotations into clip data...')
+  print (d_set+': Parsing annotations into clip data...')
   # Parse csv data
   with open((d_set+'.csv'), 'rt') as f:
     reader      = csv.reader(f)
@@ -114,9 +115,12 @@ for d_set in d_sets:
   # Update the final clip with its stop time
   clips[-1].stop = annotations[-1][1]
 
-  print('Downloading and cutting videos to size...') 
   # For each video clip
-  for clip in clips:
+  for clip_idx, clip in enumerate(clips):
+    # Inform user of progress
+    print(d_set+': Downloading & cutting video ['+ \
+            str(clip_idx)+'/'+str(len(clips))+']')
+      
     # Use pytube
     yt = YouTube('http://youtu.be/'+clip.yt_id)
     yt.set_filename('temp_vid')
@@ -125,11 +129,15 @@ for d_set in d_sets:
     video = yt.filter('mp4')[-1]
     video.download(d_set_dir)
 
-    # Cut out the clip within the downloaded video
-    ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
-                           int(clip.start)/1000, \
-                           int(clip.stop)/1000, \
-                           targetname=(d_set_dir+clip.name+'.mp4'))
+    # If the download was successful (video still exists on YouTube)
+    if (os.path.exists(d_set_dir+'temp_vid.mp4')):
+      # Cut out the clip within the downloaded video
+      ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
+                             int(clip.start)/1000, \
+                             int(clip.stop)/1000, \
+                             targetname=(d_set_dir+clip.name+'.mp4'))
 
-    # Remove the temporary video
-    call('rm -rf '+d_set_dir+'temp_vid.mp4')
+      # Remove the temporary video
+      call('rm -rf '+d_set_dir+'temp_vid.mp4',shell=True)
+
+
