@@ -139,8 +139,7 @@ for d_set in d_sets:
     # Use youtube_dl to download the video
     ydl_opts = {
       # Choose the best quality available
-      'format': \
-        'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]',
+      'format': 'best[ext=mp4]',
       'outtmpl': d_set_dir+'/temp_vid.%(ext)s'
     }
     ydl = youtube_dl.YoutubeDL(ydl_opts)
