@@ -22,6 +22,7 @@ imageio.plugins.ffmpeg.download()
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from subprocess import call
 from pytube import YouTube
+import socket
 import pytube
 import os.path
 import sys
@@ -134,10 +135,22 @@ for d_set in d_sets:
     # Use pytube to download the video
     try:
       yt = YouTube('http://youtu.be/'+clip.yt_id)
+    # If a dead link, skip
     except pytube.exceptions.PytubeError:
       print("Dead YouTube link")
-      # If a dead link, skip
       continue
+    # If timed out, retry one more time
+    except socket.error:
+      try:
+        yt = YouTube('http://youtu.be/'+clip.yt_id)
+      except pytube.exceptions.PytubeError:
+        print("Dead YouTube link")
+        continue
+      # If timed out twice, skip
+      except socket.error:
+        print("Timed out twice")
+        continue
+
     yt.set_filename('temp_vid')
 
     # Make the class directory if it doesn't exist yet
