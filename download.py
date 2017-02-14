@@ -126,7 +126,8 @@ for d_set in d_sets:
   for clip_idx, clip in enumerate(clips):
     # Inform user of progress
     print(d_set+': Downloading & cutting video ['+ \
-            str(clip_idx)+'/'+str(len(clips))+']')
+            str(clip_idx)+'/'+str(len(clips))+']: '+ \
+            clip.name)
       
     # Use pytube to download the video
     try:
