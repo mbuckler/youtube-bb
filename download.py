@@ -55,7 +55,7 @@ class video_clip(object):
               self.class_id+', '+ \
               self.obj_id+']\n')
 
-def download(dl_dir):
+def download(dl_dir='videos'):
   """Download the entire youtube-bb data set into `dl_dir`.
   """
 
@@ -178,4 +178,4 @@ def download(dl_dir):
 if __name__ == '__main__':
   # Use the directory `videos` in the current working directory by
   # default, or a directory specified on the command line.
-  download(sys.argv[1] if len(sys.argv) > 1 else 'videos')
+  download(*sys.argv[1:])
