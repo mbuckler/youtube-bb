@@ -29,8 +29,7 @@ import csv
 import os
 
 # The directory where you downloaded your videos to
-#vid_dir = '/home/mbuckler/datasets/youtube-bb/videos/'
-vid_dir = '/home/mbuckler/datasets/youtube-bb/vid-fake/'
+vid_dir = '/home/mbuckler/datasets/youtube-bb/videos/'
 
 # The directory where you would like the decoded frames to be
 frame_dir = '/home/mbuckler/datasets/youtube-bb/frames/'
