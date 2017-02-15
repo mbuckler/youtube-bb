@@ -4,8 +4,8 @@ This repo contains helpful scripts for using the [YouTube BoundingBoxes](
 https://research.google.com/youtube-bb/index.html) 
 dataset released by Google Research. The only current hosting method 
 provided for the dataset is [annotations in csv
-form](https://research.google.com/youtube-bb/download.html). For this
-reason these scripts are provided for downloading, cutting, and decoding
+form](https://research.google.com/youtube-bb/download.html). The csv files contain links to the videos on YouTube, but it's up to you to download the video files themselves. For this
+reason, these scripts are provided for downloading, cutting, and decoding
 the videos into a usable form.
 
 These scripts were written by Mark Buckler and the YouTube BoundingBoxes
