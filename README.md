@@ -51,7 +51,4 @@ Once your downloading has completed you may be interested in decoding
 the videos into individual still frames. If this is the case, use the
 decoding script.
 
-1. Edit `decode.py` to point to where your videos were downloaded to, and
-	 also where you would like the decoded frames to go.
-
-2. Run `python decode.py` in this repo's directory.
+Run `python decode.py [VIDEO_DIR] [FRAME_DIR]`. The first parameter is the directory where your videos were downloaded to (default: `videos`), and the second is where you would like the decoded frames to go (default: `frames`).
