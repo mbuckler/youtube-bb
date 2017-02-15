@@ -26,8 +26,9 @@ accompanying whitepaper is [here](https://arxiv.org/abs/1702.00824).
 update your apt-get repository before being able to install as [shown
 here](https://www.faqforge.com/linux/how-to-install-ffmpeg-on-ubuntu-14-04/).
 
-4. Some small tweaks may be needed for different software environments.
-	 These scripts were developed and tested on Ubuntu 14.04.
+The script also requires `wget` to download files.
+Some small tweaks may be needed for different software environments.
+These scripts were developed and tested on Ubuntu 14.04.
 
 ## Running the scripts
 
