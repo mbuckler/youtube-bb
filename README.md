@@ -38,11 +38,11 @@ downloading the videos which accompany the provided annotations and then
 cutting these videos down to the range in which they have been
 annotated.
 
-1. Edit `download.py` to point to where you would like your 
-videos be downloaded to.
+Run `python download.py [DIR]` to download the dataset into the specified
+directory. If you don't provide a path, a directory named `video` will be
+created.
 
-2. Run `python download.py` in this repo's directory and wait 
-(for quite a long time...)
+Then wait (for quite a long time...).
 
 ### Decode
 
