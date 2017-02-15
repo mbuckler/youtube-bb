@@ -4,7 +4,7 @@
 ########################################################################
 #
 # This script downloads all videos within the YouTube BoundingBoxes
-# dataset and cuts them to the defined clip size. It is accompanied by 
+# dataset and cuts them to the defined clip size. It is accompanied by
 # a second script which decodes the videos into single frames.
 #
 # Author: Mark Buckler
@@ -21,15 +21,12 @@ from __future__ import unicode_literals
 import imageio
 imageio.plugins.ffmpeg.download()
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
-from subprocess import call
+from subprocess import check_call
 import youtube_dl
 import socket
 import os.path
 import sys
 import csv
-
-# Specify the directory to download the videos into:
-dl_dir = '/home/mbuckler/datasets/youtube-bb/videos/'
 
 # The data sets to be downloaded
 d_sets = ['yt_bb_classification_train',
@@ -58,119 +55,127 @@ class video_clip(object):
               self.class_id+', '+ \
               self.obj_id+']\n')
 
-# Make the download directory if it doesn't already exist
-call('mkdir -p '+dl_dir,shell=True)
+def download(dl_dir='videos'):
+  """Download the entire youtube-bb data set into `dl_dir`.
+  """
 
-# For each of the four datasets
-for d_set in d_sets:
+  # Make the download directory if it doesn't already exist
+  check_call(['mkdir', '-p', dl_dir])
 
-  # Make the directory for this dataset
-  d_set_dir = dl_dir+'/'+d_set+'/'
-  call('mkdir -p '+d_set_dir,shell=True)
+  # For each of the four datasets
+  for d_set in d_sets:
 
-  if ('classification' in d_set):
-    class_or_det = 'class'
-  elif ('detection' in d_set):
-    class_or_det = 'det'
+    # Make the directory for this dataset
+    d_set_dir = dl_dir+'/'+d_set+'/'
+    check_call(['mkdir', '-p', d_set_dir])
 
-  # Download & extract the annotation list
-  print (d_set+': Downloading annotations...')
-  call('wget '+'\"'+web_host+d_set+'.csv.gz'+'\"',shell=True)
-  print (d_set+': Unzipping annotations...')
-  call('gzip -d -f '+d_set+'.csv.gz',shell=True)
+    if ('classification' in d_set):
+      class_or_det = 'class'
+    elif ('detection' in d_set):
+      class_or_det = 'det'
 
-  print (d_set+': Parsing annotations into clip data...')
-  # Parse csv data
-  with open((d_set+'.csv'), 'rt') as f:
-    reader      = csv.reader(f)
-    annotations = list(reader)
+    # Download & extract the annotation list
+    print (d_set+': Downloading annotations...')
+    check_call(['wget', web_host+d_set+'.csv.gz'])
+    print (d_set+': Unzipping annotations...')
+    check_call(['gzip', '-d', '-f', d_set+'.csv.gz'])
 
-  current_clip_name = ['blank']
-  clips             = []
+    print (d_set+': Parsing annotations into clip data...')
+    # Parse csv data
+    with open((d_set+'.csv'), 'rt') as f:
+      reader      = csv.reader(f)
+      annotations = list(reader)
+
+    current_clip_name = ['blank']
+    clips             = []
 
 
-  # Parse annotations into list of clips with names, youtube ids, start
-  # times and stop times
-  for idx, annotation in enumerate(annotations):
-    # If this is for a classify dataset there is no object id
-    if (class_or_det == 'class'):
-      obj_id = '0'
-    elif (class_or_det == 'det'):
-      obj_id = annotation[4]
-    yt_id    = annotation[0]
-    class_id = annotation[2]
+    # Parse annotations into list of clips with names, youtube ids, start
+    # times and stop times
+    for idx, annotation in enumerate(annotations):
+      # If this is for a classify dataset there is no object id
+      if (class_or_det == 'class'):
+        obj_id = '0'
+      elif (class_or_det == 'det'):
+        obj_id = annotation[4]
+      yt_id    = annotation[0]
+      class_id = annotation[2]
 
-    clip_name = yt_id+':'+class_id+':'+obj_id
-                
-    # If this is a new clip
-    if clip_name != current_clip_name:
-      
-      # Update the finishing clip
-      if idx != 0: # If this isnt the first clip 
-        clips[-1].stop = annotations[idx-1][1]
+      clip_name = yt_id+':'+class_id+':'+obj_id
 
-      # Add the starting clip
-      clip_start = annotation[1]
-      clips.append( video_clip( \
-        clip_name, \
-        yt_id, \
-        clip_start, \
-        '0', \
-        class_id, \
-        obj_id ) )
-      
-      # Update the current clip name
-      current_clip_name = clip_name 
+      # If this is a new clip
+      if clip_name != current_clip_name:
 
-  # Update the final clip with its stop time
-  clips[-1].stop = annotations[-1][1]
+        # Update the finishing clip
+        if idx != 0: # If this isnt the first clip
+          clips[-1].stop = annotations[idx-1][1]
 
-  # For each video clip
-  for clip_idx, clip in enumerate(clips):
-    # Inform user of progress
-    print('\n'+d_set+': Downloading & cutting video ['+ \
-            str(clip_idx)+'/'+str(len(clips))+']: '+ \
-            clip.name+'\n')
+        # Add the starting clip
+        clip_start = annotation[1]
+        clips.append( video_clip( \
+          clip_name, \
+          yt_id, \
+          clip_start, \
+          '0', \
+          class_id, \
+          obj_id ) )
 
-    # Make the class directory if it doesn't exist yet
-    class_dir = d_set_dir+'/'+str(clip.class_id)
-    call('mkdir -p '+class_dir,shell=True)
+        # Update the current clip name
+        current_clip_name = clip_name
 
-    # Use youtube_dl to download the video
-    ydl_opts = {
-      # Choose the best quality available
-      'format': 'best[ext=mp4]',
-      'outtmpl': d_set_dir+'/temp_vid.%(ext)s'
-    }
-    ydl = youtube_dl.YoutubeDL(ydl_opts)
+    # Update the final clip with its stop time
+    clips[-1].stop = annotations[-1][1]
 
-    try:
-      ydl.download(['http://youtu.be/'+clip.yt_id])
-    # If a dead link, skip
-    except youtube_dl.utils.DownloadError:
-      print("Dead YouTube link")
-      continue
-    # If timed out, retry one more time
-    except socket.error:
+    # For each video clip
+    for clip_idx, clip in enumerate(clips):
+      # Inform user of progress
+      print('\n'+d_set+': Downloading & cutting video ['+ \
+              str(clip_idx)+'/'+str(len(clips))+']: '+ \
+              clip.name+'\n')
+
+      # Make the class directory if it doesn't exist yet
+      class_dir = d_set_dir+'/'+str(clip.class_id)
+      check_call(['mkdir', '-p', class_dir])
+
+      # Use youtube_dl to download the video
+      ydl_opts = {
+        # Choose the best quality available
+        'format': 'best[ext=mp4]',
+        'outtmpl': d_set_dir+'/temp_vid.%(ext)s'
+      }
+      ydl = youtube_dl.YoutubeDL(ydl_opts)
+
       try:
-          ydl.download(['http://youtu.be/'+clip.yt_id])
+        ydl.download(['http://youtu.be/'+clip.yt_id])
+      # If a dead link, skip
       except youtube_dl.utils.DownloadError:
         print("Dead YouTube link")
         continue
-      # If timed out twice, skip
+      # If timed out, retry one more time
       except socket.error:
-        print("Timed out twice")
-        continue
+        try:
+            ydl.download(['http://youtu.be/'+clip.yt_id])
+        except youtube_dl.utils.DownloadError:
+          print("Dead YouTube link")
+          continue
+        # If timed out twice, skip
+        except socket.error:
+          print("Timed out twice")
+          continue
 
-    # Verify that the file has been downloaded. Skip otherwise
-    if os.path.exists(d_set_dir+'temp_vid.mp4'): 
-      # Cut out the clip within the downloaded video and save the clip 
-      # in the correct class directory
-      ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
-                             int(clip.start)/1000, \
-                             int(clip.stop)/1000, \
-                             targetname=(class_dir+'/'+clip.name+'.mp4'))
+      # Verify that the file has been downloaded. Skip otherwise
+      if os.path.exists(d_set_dir+'temp_vid.mp4'):
+        # Cut out the clip within the downloaded video and save the clip
+        # in the correct class directory
+        ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
+                               int(clip.start)/1000, \
+                               int(clip.stop)/1000, \
+                               targetname=(class_dir+'/'+clip.name+'.mp4'))
 
-      # Remove the temporary video
-      call('rm -rf '+d_set_dir+'temp_vid.mp4',shell=True)
+        # Remove the temporary video
+        check_call(['rm', '-rf', d_set_dir+'temp_vid.mp4'])
 
+if __name__ == '__main__':
+  # Use the directory `videos` in the current working directory by
+  # default, or a directory specified on the command line.
+  download(*sys.argv[1:])
