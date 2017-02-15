@@ -18,7 +18,7 @@ accompanying whitepaper is [here](https://arxiv.org/abs/1702.00824)
 1. Clone this repository
 
 2. Install majority of dependencies by running 
-`pip install -r requirements.txt`
+`pip install -r requirements.txt` in this repo's directory
 
 3. Install [ffmpeg](https://ffmpeg.org/). For most platforms this should
 	 be straightforward, but for Ubuntu 14.04 users you will need to
@@ -40,7 +40,8 @@ annotated.
 1. To begin, edit `download.py` to point to where you would like your 
 videos be downloaded to  
 
-2. Run `python download.py` and wait (for quite a long time...)
+2. Run `python download.py` in this repo's directory and wait 
+(for quite a long time...)
 
 ### Decode
 
@@ -48,7 +49,7 @@ Once your downloading has completed you may be interested in decoding
 the videos into individual still frames. If this is the case, use the
 decoding script.
 
-1. Edit decode.py to point to where your videos were downloaded to, and
+1. Edit `decode.py` to point to where your videos were downloaded to, and
 	 also where you would like the decoded frames to go.
 
-2. Run `python decode.py`
+2. Run `python decode.py` in this repo's directory
