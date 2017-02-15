@@ -4,7 +4,7 @@
 ########################################################################
 #
 # This script downloads all videos within the YouTube BoundingBoxes
-# dataset and cuts them to the defined clip size. It is accompanied by 
+# dataset and cuts them to the defined clip size. It is accompanied by
 # a second script which decodes the videos into single frames.
 #
 # Author: Mark Buckler
@@ -101,12 +101,12 @@ for d_set in d_sets:
     class_id = annotation[2]
 
     clip_name = yt_id+':'+class_id+':'+obj_id
-                
+
     # If this is a new clip
     if clip_name != current_clip_name:
-      
+
       # Update the finishing clip
-      if idx != 0: # If this isnt the first clip 
+      if idx != 0: # If this isnt the first clip
         clips[-1].stop = annotations[idx-1][1]
 
       # Add the starting clip
@@ -118,9 +118,9 @@ for d_set in d_sets:
         '0', \
         class_id, \
         obj_id ) )
-      
+
       # Update the current clip name
-      current_clip_name = clip_name 
+      current_clip_name = clip_name
 
   # Update the final clip with its stop time
   clips[-1].stop = annotations[-1][1]
@@ -163,8 +163,8 @@ for d_set in d_sets:
         continue
 
     # Verify that the file has been downloaded. Skip otherwise
-    if os.path.exists(d_set_dir+'temp_vid.mp4'): 
-      # Cut out the clip within the downloaded video and save the clip 
+    if os.path.exists(d_set_dir+'temp_vid.mp4'):
+      # Cut out the clip within the downloaded video and save the clip
       # in the correct class directory
       ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
                              int(clip.start)/1000, \
