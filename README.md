@@ -40,7 +40,7 @@ cutting these videos down to the range in which they have been
 annotated.
 
 Run `python download.py [DIR]` to download the dataset into the specified
-directory. If you don't provide a path, a directory named `video` will be
+directory. If you don't provide a path, a directory named `videos` will be
 created.
 
 Then wait (for quite a long time...).
