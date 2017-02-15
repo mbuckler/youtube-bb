@@ -28,6 +28,7 @@ from ffmpy import FFmpeg
 import csv
 import os
 import sys
+import glob
 
 def decode(vid_dir='videos', frame_dir='frames'):
   """Using the videos downloaded in `vid_dir`, produce decoded frames in
@@ -59,14 +60,15 @@ def decode(vid_dir='videos', frame_dir='frames'):
         os.chdir(class_)
 
         # Decode the video into 30 fps frames with ffmpeg
-        check_call('ffmpeg -i file:'+clip_name+'.mp4 -vf fps=30 frame_%06d.jpg',
-                shell=True)
+        check_call(['ffmpeg', '-i', 'file:'+clip_name+'.mp4', '-vf', 'fps=30',
+                    'frame_%06d.jpg'])
 
         # Create a directory for this clip
-        check_call('mkdir -p '+clip_out_dir,shell=True)
+        check_call(['mkdir', '-p', clip_out_dir])
 
         # Move the results to the output directory
-        check_call('mv *.jpg '+clip_out_dir,shell=True)
+        for jpg in glob.glob('*.jpg'):
+          check_call(['mv', jpg, clip_out_dir])
 
 if __name__ == '__main__':
   decode(*sys.argv[1:])
