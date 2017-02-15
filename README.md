@@ -1,6 +1,7 @@
 # YouTube BoundingBox
 
-This repo contains helpful scripts for using the YouTube BoundingBoxes
+This repo contains helpful scripts for using the [YouTube BoundingBoxes](
+https://research.google.com/youtube-bb/index.html) 
 dataset released by Google Research. The only current hosting method 
 provided for the dataset is [annotations in csv
 form](https://research.google.com/youtube-bb/download.html). For this
