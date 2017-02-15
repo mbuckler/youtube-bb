@@ -60,14 +60,14 @@ def download(dl_dir):
   """
 
   # Make the download directory if it doesn't already exist
-  check_call('mkdir -p '+dl_dir,shell=True)
+  check_call(['mkdir', '-p', dl_dir])
 
   # For each of the four datasets
   for d_set in d_sets:
 
     # Make the directory for this dataset
     d_set_dir = dl_dir+'/'+d_set+'/'
-    check_call('mkdir -p '+d_set_dir,shell=True)
+    check_call(['mkdir', '-p', d_set_dir])
 
     if ('classification' in d_set):
       class_or_det = 'class'
@@ -76,9 +76,9 @@ def download(dl_dir):
 
     # Download & extract the annotation list
     print (d_set+': Downloading annotations...')
-    check_call('wget '+'\"'+web_host+d_set+'.csv.gz'+'\"',shell=True)
+    check_call(['wget', web_host+d_set+'.csv.gz'])
     print (d_set+': Unzipping annotations...')
-    check_call('gzip -d -f '+d_set+'.csv.gz',shell=True)
+    check_call(['gzip', '-d', '-f', d_set+'.csv.gz'])
 
     print (d_set+': Parsing annotations into clip data...')
     # Parse csv data
@@ -135,7 +135,7 @@ def download(dl_dir):
 
       # Make the class directory if it doesn't exist yet
       class_dir = d_set_dir+'/'+str(clip.class_id)
-      check_call('mkdir -p '+class_dir,shell=True)
+      check_call(['mkdir', '-p', class_dir])
 
       # Use youtube_dl to download the video
       ydl_opts = {
@@ -173,7 +173,7 @@ def download(dl_dir):
                                targetname=(class_dir+'/'+clip.name+'.mp4'))
 
         # Remove the temporary video
-        check_call('rm -rf '+d_set_dir+'temp_vid.mp4',shell=True)
+        check_call(['rm', '-rf', d_set_dir+'temp_vid.mp4'])
 
 if __name__ == '__main__':
   # Use the directory `videos` in the current working directory by
