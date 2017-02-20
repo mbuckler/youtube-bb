@@ -19,13 +19,15 @@
 
 from __future__ import unicode_literals
 import imageio
-imageio.plugins.ffmpeg.download()
+from ffmpy import FFmpeg
+#imageio.plugins.ffmpeg.download()
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from subprocess import check_call
 from concurrent import futures
 import youtube_dl
 import socket
-import os.path
+import os
+import io
 import sys
 import csv
 
@@ -57,11 +59,8 @@ class video_clip(object):
               self.obj_id+']\n')
 
 # Download and cut a clip to size
-def dl_and_cut(clip):
+def dl_and_cut(clip,d_set_dir):
   # Inform user of progress
-  #print('\n'+d_set+': Downloading & cutting video: '+ \
-  #        clip.name+'\n')
-  print(threading.active_count())
 
   # Make the class directory if it doesn't exist yet
   class_dir = d_set_dir+'/'+str(clip.class_id)
@@ -71,7 +70,7 @@ def dl_and_cut(clip):
   ydl_opts = {
     # Choose the best quality available
     'format': 'best[ext=mp4]',
-    'outtmpl': d_set_dir+'/temp_vid.%(ext)s'
+    'outtmpl': d_set_dir+'/'+clip.name+'_temp.%(ext)s'
   }
   ydl = youtube_dl.YoutubeDL(ydl_opts)
 
@@ -79,31 +78,31 @@ def dl_and_cut(clip):
     ydl.download(['http://youtu.be/'+clip.yt_id])
   # If a dead link, skip
   except youtube_dl.utils.DownloadError:
-    print("Dead YouTube link")
     return 
   # If timed out, retry one more time
   except socket.error:
     try:
         ydl.download(['http://youtu.be/'+clip.yt_id])
     except youtube_dl.utils.DownloadError:
-      print("Dead YouTube link")
       return
     # If timed out twice, skip
     except socket.error:
-      print("Timed out twice")
       return 
 
   # Verify that the file has been downloaded. Skip otherwise
-  if os.path.exists(d_set_dir+'temp_vid.mp4'):
+  if os.path.exists(d_set_dir+'/'+clip.name+'_temp.mp4'):
     # Cut out the clip within the downloaded video and save the clip
-    # in the correct class directory
-    ffmpeg_extract_subclip((d_set_dir+'temp_vid.mp4'), \
-                           int(clip.start)/1000, \
-                           int(clip.stop)/1000, \
-                           targetname=(class_dir+'/'+clip.name+'.mp4'))
+    # in the correct class directory. Note that the -ss argument coming
+    # first tells ffmpeg to start off with an I frame (no frozen start).
+    check_call(['ffmpeg',\
+      '-ss', str(float(clip.start)/1000),\
+      '-i','file:'+d_set_dir+'/'+clip.name+'_temp.mp4',\
+      '-t', str((float(clip.start)+float(clip.stop))/1000),\
+      '-c','copy',class_dir+'/'+clip.name+'.mp4'])
 
     # Remove the temporary video
-    check_call(['rm', '-rf', d_set_dir+'temp_vid.mp4'])
+    os.remove(d_set_dir+'/'+clip.name+'_temp.mp4')
+
 
 
 
@@ -179,10 +178,25 @@ def parse_and_sched(dl_dir='videos',num_threads=4):
     # Update the final clip with its stop time
     clips[-1].stop = annotations[-1][1]
 
+    # Create the progress file
+    prog_file = open('progress.txt','w')
+
+    # Squash terminal output from downloader and cutter
+    save_stdout = sys.stdout
+    sys.stdout  = io.BytesIO()
+ 
     # Download and cut every clip. Perform in parallel to get more
     # bandwidth from YouTube
     with futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-      executor.map(dl_and_cut, clips)
+      fs = [executor.submit(dl_and_cut,clip,d_set_dir) for clip in clips]
+      for i, f in enumerate(futures.as_completed(fs)):
+        # Write progress to error so that it can be seen
+        sys.stderr.write("Clip: {} / {} \r".format(i, len(clips)))
+        
+    # Resume terminal output
+    sys.stdout = save_stdout
+
+    print( d_set+': All clips downloaded' )
 
 if __name__ == '__main__':
   # Use the directory `videos` in the current working directory by
