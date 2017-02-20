@@ -1,4 +1,4 @@
-concurrent
+futures
 youtube-dl
 imageio
 moviepy
