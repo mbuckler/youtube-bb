@@ -189,4 +189,4 @@ if __name__ == '__main__':
   # default, or a directory specified on the command line.
   print(sys.argv[1])
   print(sys.argv[2])
-  parse_and_sched(sys.argv[1],sys.argv[2])
+  parse_and_sched(sys.argv[1],int(sys.argv[2]))
