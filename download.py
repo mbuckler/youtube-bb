@@ -32,11 +32,11 @@ import sys
 import csv
 
 # The data sets to be downloaded
-#d_sets = ['yt_bb_classification_validation']
-d_sets = ['yt_bb_classification_train',
-          'yt_bb_classification_validation',
-          'yt_bb_detection_train',
-          'yt_bb_detection_validation']
+d_sets = ['yt_bb_detection_validation']
+#d_sets = ['yt_bb_classification_train',
+#          'yt_bb_classification_validation',
+#          'yt_bb_detection_train',
+#          'yt_bb_detection_validation']
 
 
 # Host location of segment lists
@@ -61,42 +61,49 @@ class video_clip(object):
               self.class_id+', '+ \
               self.obj_id+']\n')
 
+class video(object):
+  def __init__(self,yt_id,first_clip):
+    self.yt_id = yt_id
+    self.clips = [first_clip]
+  def print_all(self):
+    print(self.yt_id)
+    for clip in self.clips:
+      clip.print_all()
+
+
 # Download and cut a clip to size
-def dl_and_cut(clip):
+def dl_and_cut(vid):
 
-  d_set_dir = clip.d_set_dir
-
-  # Make the class directory if it doesn't exist yet
-  class_dir = d_set_dir+'/'+str(clip.class_id)
-  check_call(['mkdir', '-p', class_dir])
-
-# Create a temporary folder for this download to proceed in
-  check_call(['mkdir', '-p', d_set_dir+'/'+clip.name+'/'])
+  d_set_dir = vid.clips[0].d_set_dir
 
   # Use youtube_dl to download the video
   FNULL = open(os.devnull, 'w')
   check_call(['youtube-dl', \
-    #'--no-part', \
-    '--no-progress', \
+    #'--no-progress', \
     '-f','best[ext=mp4]', \
-    '-o',d_set_dir+'/'+clip.name+'/'+clip.name+'_temp.mp4', \
-    'youtu.be/'+clip.yt_id ], \
-     stdout=FNULL,stderr=subprocess.STDOUT )
+    '-o',d_set_dir+'/'+vid.yt_id+'_temp.mp4', \
+    'youtu.be/'+vid.yt_id ], \
+      )
 
-  # Verify that the file has been downloaded. Skip otherwise
-  if os.path.exists(d_set_dir+'/'+clip.name+'/'+clip.name+'_temp.mp4'):
-    # Cut out the clip within the downloaded video and save the clip
-    # in the correct class directory. Note that the -ss argument coming
-    # first tells ffmpeg to start off with an I frame (no frozen start).
-    check_call(['ffmpeg',\
-      '-ss', str(float(clip.start)/1000),\
-      '-i','file:'+d_set_dir+'/'+clip.name+'/'+clip.name+'_temp.mp4',\
-      '-t', str((float(clip.start)+float(clip.stop))/1000),\
-      '-c','copy',class_dir+'/'+clip.name+'.mp4'],
-        stdout=FNULL,stderr=subprocess.STDOUT)
+  for clip in vid.clips:
+    # Verify that the video has been downloaded. Skip otherwise
+    if os.path.exists(d_set_dir+'/'+vid.yt_id+'_temp.mp4'):
+      # Make the class directory if it doesn't exist yet
+      class_dir = d_set_dir+'/'+str(clip.class_id)
+      check_call(['mkdir', '-p', class_dir])  
+      
+      # Cut out the clip within the downloaded video and save the clip
+      # in the correct class directory. Note that the -ss argument coming
+      # first tells ffmpeg to start off with an I frame (no frozen start)
+      check_call(['ffmpeg',\
+        '-ss', str(float(clip.start)/1000),\
+        '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
+        '-t', str((float(clip.start)+float(clip.stop))/1000),\
+        '-c','copy',class_dir+'/'+clip.name+'.mp4'],
+          stdout=FNULL,stderr=subprocess.STDOUT)
 
-    # Remove the temporary video
-    check_call(['rm','-rf',d_set_dir+'/'+clip.name])
+  # Remove the temporary video
+  os.remove(d_set_dir+'/'+vid.yt_id+'_temp.mp4')
 
 
 # Parse the annotation csv file and schedule downloads and cuts
@@ -171,18 +178,40 @@ def parse_and_sched(dl_dir='videos',num_threads=4):
     # Update the final clip with its stop time
     clips[-1].stop = annotations[-1][1]
 
-    # Shuffle the clips 
-    shuffle(clips)
+    # Sort the clips by youtube id
+    clips.sort(key=lambda x: x.yt_id)
+
+    # Create list of videos to download (possibility of multiple clips
+    # from one video)
+    current_vid_id = ['blank']
+    vids = []
+    for clip in clips:
+
+      vid_id = clip.yt_id
+
+      # If this is a new video
+      if vid_id != current_vid_id:
+        # Add the new video with its first clip
+        vids.append( video ( \
+          clip.yt_id, \
+          clip ) )
+      # If this is a new clip for the same video
+      else:
+        # Add the new clip to the video
+        vids[-1].clips.append(clip)
+        
+      # Update the current video name
+      current_vid_id = vid_id
 
     # Download and cut in parallel threads giving 
-    with futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-      fs = [executor.submit(dl_and_cut,clip) for clip in clips]
+    with futures.ProcessPoolExecutor(max_workers=num_threads) as executor:
+      fs = [executor.submit(dl_and_cut,vid) for vid in vids]
       for i, f in enumerate(futures.as_completed(fs)):
         # Write progress to error so that it can be seen
         sys.stderr.write( \
-          "Downloaded clip: {} / {} \r".format(i, len(clips)))
+          "Downloaded video: {} / {} \r".format(i, len(vids)))
     
-    print( d_set+': All clips downloaded' )
+    print( d_set+': All videos downloaded' )
 
 if __name__ == '__main__':
   # Use the directory `videos` in the current working directory by
