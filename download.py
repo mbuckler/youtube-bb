@@ -32,12 +32,10 @@ import sys
 import csv
 
 # The data sets to be downloaded
-d_sets = ['yt_bb_detection_validation']
-#d_sets = ['yt_bb_classification_train',
-#          'yt_bb_classification_validation',
-#          'yt_bb_detection_train',
-#          'yt_bb_detection_validation']
-
+d_sets = ['yt_bb_classification_train',
+          'yt_bb_classification_validation',
+          'yt_bb_detection_train',
+          'yt_bb_detection_validation']
 
 # Host location of segment lists
 web_host = 'https://research.google.com/youtube-bb/'
@@ -70,7 +68,6 @@ class video(object):
     for clip in self.clips:
       clip.print_all()
 
-
 # Download and cut a clip to size
 def dl_and_cut(vid):
 
@@ -83,7 +80,7 @@ def dl_and_cut(vid):
     '-f','best[ext=mp4]', \
     '-o',d_set_dir+'/'+vid.yt_id+'_temp.mp4', \
     'youtu.be/'+vid.yt_id ], \
-      )
+     stdout=FNULL,stderr=subprocess.STDOUT )
 
   for clip in vid.clips:
     # Verify that the video has been downloaded. Skip otherwise
@@ -100,7 +97,7 @@ def dl_and_cut(vid):
         '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
         '-t', str((float(clip.start)+float(clip.stop))/1000),\
         '-c','copy',class_dir+'/'+clip.name+'.mp4'],
-          stdout=FNULL,stderr=subprocess.STDOUT)
+         stdout=FNULL,stderr=subprocess.STDOUT )
 
   # Remove the temporary video
   os.remove(d_set_dir+'/'+vid.yt_id+'_temp.mp4')
@@ -121,11 +118,6 @@ def parse_and_sched(dl_dir='videos',num_threads=4):
     d_set_dir = dl_dir+'/'+d_set+'/'
     check_call(['mkdir', '-p', d_set_dir])
 
-    if ('classification' in d_set):
-      class_or_det = 'class'
-    elif ('detection' in d_set):
-      class_or_det = 'det'
-
     # Download & extract the annotation list
     print (d_set+': Downloading annotations...')
     check_call(['wget', web_host+d_set+'.csv.gz'])
@@ -137,6 +129,16 @@ def parse_and_sched(dl_dir='videos',num_threads=4):
     with open((d_set+'.csv'), 'rt') as f:
       reader      = csv.reader(f)
       annotations = list(reader)
+
+    # Sort to de-interleave the annotations for easier parsing
+    if ('classification' in d_set):
+      class_or_det = 'class'
+      # Sort by youtube_id, class, and then timestamp
+      annotations.sort(key=lambda l: (l[0],l[2],l[1]))
+    elif ('detection' in d_set):
+      class_or_det = 'det'
+      # Sort by youtube_id, class, obj_id and then timestamp
+      annotations.sort(key=lambda l: (l[0],l[2],l[4],l[1]))
 
     current_clip_name = ['blank']
     clips             = []
@@ -216,6 +218,4 @@ def parse_and_sched(dl_dir='videos',num_threads=4):
 if __name__ == '__main__':
   # Use the directory `videos` in the current working directory by
   # default, or a directory specified on the command line.
-  print(sys.argv[1])
-  print(sys.argv[2])
   parse_and_sched(sys.argv[1],int(sys.argv[2]))
