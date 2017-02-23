@@ -21,12 +21,13 @@ accompanying whitepaper is [here](https://arxiv.org/abs/1702.00824).
 2. Install majority of dependencies by running 
 `pip install -r requirements.txt` in this repo's directory.
 
-3. Install [ffmpeg](https://ffmpeg.org/). For most platforms this should
-	 be straightforward, but for Ubuntu 14.04 users you will need to
-update your apt-get repository before being able to install as [shown
+3. Install wget, [ffmpeg](https://ffmpeg.org/) and 
+[youtube-dl](https://github.com/rg3/youtube-dl) through your package 
+manager. For most platforms this should be straightforward, but for 
+Ubuntu 14.04 users you will need to update your apt-get repository 
+before being able to install ffmpeg as [shown
 here](https://www.faqforge.com/linux/how-to-install-ffmpeg-on-ubuntu-14-04/).
 
-The script also requires `wget` to download files.
 Some small tweaks may be needed for different software environments.
 These scripts were developed and tested on Ubuntu 14.04.
 
@@ -35,20 +36,22 @@ These scripts were developed and tested on Ubuntu 14.04.
 ### Download
 
 The `download.py` script is provided for users who are interested in
-downloading the videos which accompany the provided annotations and then
-cutting these videos down to the range in which they have been
-annotated.
+downloading the videos which accompany the provided annotations. It also
+cuts these videos down to the range in which they have been
+annotated. Parallel video downloads are supported so that you can
+saturate your download bandwith even though YouTube throttles per-video.
+I was able to download the Detection Validation videos (412 GB) in
+roughly 3 hours.
 
-Run `python download.py [DIR]` to download the dataset into the specified
+Run `python download.py [VIDEO_DIR] [NUM_THREADS]` to download the dataset into the specified
 directory. If you don't provide a path, a directory named `videos` will be
-created.
-
-Then wait (for quite a long time...).
+created. 
 
 ### Decode
 
 Once your downloading has completed you may be interested in decoding
 the videos into individual still frames. If this is the case, use the
-decoding script.
+decoding script. The script decodes all frames within the clips at 30
+frames per second.
 
 Run `python decode.py [VIDEO_DIR] [FRAME_DIR]`. The first parameter is the directory where your videos were downloaded to (default: `videos`), and the second is where you would like the decoded frames to go (default: `frames`).
