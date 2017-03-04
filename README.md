@@ -33,6 +33,8 @@ These scripts were developed and tested on Ubuntu 14.04.
 
 ## Running the scripts
 
+Note: You will need to use at least Python 3.0. This script was developed with Python 3.5.2.
+
 ### Download
 
 The `download.py` script is provided for users who are interested in
