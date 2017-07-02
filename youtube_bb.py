@@ -85,6 +85,7 @@ def dl_and_cut(vid):
       # Cut out the clip within the downloaded video and save the clip
       # in the correct class directory. Note that the -ss argument coming
       # first tells ffmpeg to start off with an I frame (no frozen start)
+      # https://trac.ffmpeg.org/wiki/Seeking
       check_call(['ffmpeg',\
         '-ss', str(float(clip.start)/1000),\
         '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
