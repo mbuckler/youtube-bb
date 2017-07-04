@@ -18,84 +18,56 @@ import random
 from subprocess import check_call
 
 ## Decode all the clips in a given vid
-#def decode_vid(vid,src_dir,dest_dir):
-#  # Vid's time start from original youtube video
-#  vid_start = vid.clips[0].start
-#  for clip in vid.clips:
-#    # Some vids (cut videos) contain multiple clips
-#    # Convert the clip start time to its place in the cut video
-#    clip_start_in_vid = int((clip.start-vid_start) / 1000)
-#    num_frames = int((clip.stop - clip.start) / 1000)
-#    clip_stop_in_vid = clip_start_in_vid + num_frames
+def decode_vid(annot,src_clip,dest_dir):
 
-#    for timestamp in range(clip_start_in_vid,clip_stop_in_vid+1):
-#      # Extract frame
+  # Vid's time start from original youtube video
+  vid_start = vid.clips[0].start
+  for clip in vid.clips:
+    # Some vids (cut videos) contain multiple clips
+    # Convert the clip start time to its place in the cut video
+    clip_start_in_vid = int((clip.start-vid_start) / 1000)
+    num_frames = int((clip.stop - clip.start) / 1000)
+    clip_stop_in_vid = clip_start_in_vid + num_frames
 
-# Schedule the decoding of all videos
-#def decode_vids(vids,d_set,src_dir,dest_dir,num_threads):
-#  downloaded_vids = []
-#  # Check if the videos were actually downloaded
-#  for vid in vids:
-#    for clip in vid.clips:
-#      # If video exists (if download succeeded)
-#      if ( src_dir+'/'+d_set+'/'+vid.yt_id):
-#        downloaded_vids.append(vid)
-#  # Extract frames from each video
-#  with futures.ProcessPoolExecutor(max_workers=num_threads) as executor:
-#    fs = [executor.submit(decode_vid,vid) for vid in downloaded_vids]
-#    for i, f in enumerate(futures.as_completed(fs)):
-#      # Write progress to error so that it can be seen
-#      sys.stderr.write( \
-#        "Decoded video: {} / {} \r".format(i, len(downloaded_vids)))
-#
-#  return downloaded_vids
+    for timestamp in range(clip_start_in_vid,clip_stop_in_vid+1):
+      # Extract frame
 
 
-
-# The annotations are not necessarily evenly distributed throughout
-# each clip, so per-annotation decoding is necessary.
-
-# Getting a list of all the data can be done by serially going through each
-# annotation and checking to see if it's video is present.
 
 def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
   # Get list of annotations
   # Download & extract the annotation list
-  if not os.path.exists(d_set+'.csv'):
-    print (d_set+': Downloading annotations...')
-    check_call(['wget', web_host+d_set+'.csv.gz'])
-    print (d_set+': Unzipping annotations...')
-    check_call(['gzip', '-d', '-f', d_set+'.csv.gz'])
-  print (d_set+': Parsing annotations into clip data...')
-  # Parse csv data
-  with open((d_set+'.csv'), 'rt') as f:
-    reader      = csv.reader(f)
-    annotations = list(reader)
+  annotations,vids = youtube_bb.parse_annotations(d_set,src_dir)
 
   # Filter out annotations with no matching video
   present_annots = []
   for annot in annotations:
-    annot_vid_path = src_dir+'/'+d_set+'/'''''''''''''''''''''''''''
-    if (os.path.exists()):
+    yt_id    = annot[0]
+    class_id = annot[2]
+    obj_id   = annot[4]
+    annot_clip_path = src_dir+'/'+d_set+'/'+class_id+'/'
+    annot_clip_name = yt_id+'+'+class_id+'+'+obj_id+'.mp4'
+    if (os.path.exists(annot_clip_path+annot_clip_name)):
       present_annots.append(annot)
 
   # Shuffle annotations
-  random.shuffle(annotations)
+  random.shuffle(present_annots)
 
   # Gather subset of annotations
-  if num_annots != 0:
-    annotations
-    
+  if num_annots == 0: # Convert all present annotations
+    annot_to_convert = present_annots
+  else:
+    assert(len(present_annots) >= num_annots) \
+      "Number of frames requested exceeds number of present frames"
+    annot_to_convert = present_annots[:num_annots]
 
-  # For each annotation
-
-  # Decode selected frames
-
-  # Generate voc annotations
-
-  # Indicate image train/validation status
-
-  # Indicate image class status
+  # Run frame decoding in parallel, extract frames from each video
+  with futures.ProcessPoolExecutor(max_workers=num_threads) as executor:
+    fs = [executor.submit(decode_vid,vid) for vid in downloaded_vids]
+    for i, f in enumerate(futures.as_completed(fs)):
+      # Write progress to error so that it can be seen
+      sys.stderr.write( \
+        "Decoded video: {} / {} \r".format(i, len(downloaded_vids)))
 
 
 if __name__ == '__main__':
