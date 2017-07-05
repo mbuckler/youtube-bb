@@ -190,7 +190,7 @@ def parse_annotations(d_set,dl_dir):
     # Update the current video name
     current_vid_id = vid_id
 
-  return annotations,vids
+  return annotations,clips,vids
 
 def sched_downloads(d_set,dl_dir,num_threads,vids):
   d_set_dir = dl_dir+'/'+d_set+'/'

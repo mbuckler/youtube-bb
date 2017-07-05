@@ -31,7 +31,7 @@ def parse_and_sched(dl_dir='videos',num_threads=4):
 
   # For each of the four datasets
   for d_set in youtube_bb.d_sets:
-    annotations,vids = youtube_bb.parse_annotations(d_set,dl_dir)
+    annotations,clips,vids = youtube_bb.parse_annotations(d_set,dl_dir)
     youtube_bb.sched_downloads(d_set,dl_dir,num_threads,vids)
 
 if __name__ == '__main__':
