@@ -12,38 +12,45 @@
 #
 ########################################################################
 
+from __future__ import unicode_literals
 import youtube_bb
 import sys
 import random
+import os
+import subprocess
+from concurrent import futures
 from subprocess import check_call
 
 ## Decode all the clips in a given vid
-def decode_frame(clips,annot,dest_dir):
+def decode_frame(clips,annot,d_set,src_dir,dest_dir):
   yt_id    = annot[0]
   class_id = annot[2]
   obj_id   = annot[4]
   annot_clip_path = src_dir+'/'+d_set+'/'+class_id+'/'
   annot_clip_name = yt_id+'+'+class_id+'+'+obj_id+'.mp4'
+  clip_name       = yt_id+'+'+class_id+'+'+obj_id
 
   # Find the clip in vids
-  clip = next((x for x in clips if x.name == annot_clip_name), None)
+  clip = next((x for x in clips if x.name == clip_name), None)
   assert(clip != None), \
     "Annotation doesn't have a corresponding clip"
 
   # Convert the annotation time stamp (in original video) to a time in the clip
-  annot_time  = annot[1]
-  clip_start  = clip.start
+  annot_time  = float(annot[1])
+  clip_start  = float(clip.start)
   decode_time = annot_time - clip_start
 
   # Extract a frame at that time stamp to the appropriate place within the
   # destination directory
-  frame_dest = dest_dir+'/youtubebbdevkit2017/youtubebb2017/JPEGImages/'
+  frame_dest = dest_dir+'/youtubebbdevkit/youtubebb2017/JPEGImages/'
   frame_name = yt_id+'+'+class_id+'+'+obj_id+'+'+str(annot_time)+'.jpg'
+  FNULL = open(os.devnull, 'w')
   check_call(['ffmpeg',\
     '-ss', str(float(decode_time)/1000),\
     '-i', (annot_clip_path+annot_clip_name),\
-    '-t 1',
-    '-f image2',(frame_dest+frame_name)],
+    '-qscale:v','2',\
+    '-vframes','1',\
+    (frame_dest+frame_name)],\
     stdout=FNULL,stderr=subprocess.STDOUT )
 
 
@@ -75,19 +82,17 @@ def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
     annot_to_convert = present_annots[:num_annots]
 
   # Run frame decoding in parallel, extract frames from each video
-  '''
+  #for annot in annot_to_convert:
+  #  decode_frame(clips,annot,d_set,src_dir,dest_dir)
   with futures.ProcessPoolExecutor(max_workers=num_threads) as executor:
-    fs = [executor.submit(decode_frame,clips,annot,dest_dir) for annot in annot_to_convert]
+    fs = [executor.submit(decode_frame,clips,annot,d_set,src_dir,dest_dir) \
+            for annot in annot_to_convert]
     for i, f in enumerate(futures.as_completed(fs)):
       # Write progress to error so that it can be seen
       sys.stderr.write( \
         "Decoded frame: {} / {} \r".format(i, len(annot_to_convert)))
-  '''
-  # Write txt files
-  '''
-  TBD
-  '''
 
+  print(d_set+': Finished decoding frames!')
 
 if __name__ == '__main__':
 
@@ -96,9 +101,9 @@ if __name__ == '__main__':
      "[NUM_TRAIN] [NUM_VAL]"]
   src_dir          = sys.argv[1]+'/'
   dest_dir         = sys.argv[2]+'/'
-  num_threads      = sys.argv[3]
-  num_train_frames = sys.argv[4]
-  num_val_frames   = sys.argv[5]
+  num_threads      = int(sys.argv[3])
+  num_train_frames = int(sys.argv[4])
+  num_val_frames   = int(sys.argv[5])
 
   # Download VOC 2007 devkit
   devkit_link = \
@@ -121,19 +126,24 @@ if __name__ == '__main__':
               dest_dir+'youtubebbdevkit/youtubebb2017/Annotations'])
 
   # Decode frames for training detection
+  decode_frames(youtube_bb.d_sets[2],
+                src_dir,
+                dest_dir,
+                num_threads,
+                num_train_frames)
+
+  # Decode frames for validation detection
   '''
   decode_frames(youtube_bb.d_sets[3],
                 src_dir,
                 dest_dir,
                 num_threads,
-                num_train_frames)
-  '''
-
-  # Decode frames for validation detection
-  '''
-  decode_frames(youtube_bb.d_sets[4],
-                src_dir,
-                dest_dir,
-                num_threads,
                 num_val_frames)
   '''
+
+  # Write txt files
+  '''
+  TBD
+  '''
+
+
