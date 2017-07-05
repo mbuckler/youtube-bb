@@ -18,26 +18,39 @@ import random
 from subprocess import check_call
 
 ## Decode all the clips in a given vid
-def decode_vid(annot,src_clip,dest_dir):
+def decode_vid(clips,annot,dest_dir):
+  yt_id    = annot[0]
+  class_id = annot[2]
+  obj_id   = annot[4]
+  annot_clip_path = src_dir+'/'+d_set+'/'+class_id+'/'
+  annot_clip_name = yt_id+'+'+class_id+'+'+obj_id+'.mp4'
 
-  # Vid's time start from original youtube video
-  vid_start = vid.clips[0].start
-  for clip in vid.clips:
-    # Some vids (cut videos) contain multiple clips
-    # Convert the clip start time to its place in the cut video
-    clip_start_in_vid = int((clip.start-vid_start) / 1000)
-    num_frames = int((clip.stop - clip.start) / 1000)
-    clip_stop_in_vid = clip_start_in_vid + num_frames
+  # Find the clip in vids
+  clip = next((x for x in clips if x.name == annot_clip_name), None)
+  assert (clip != None) \
+    "Annotation doesn't have a corresponding clip"
 
-    for timestamp in range(clip_start_in_vid,clip_stop_in_vid+1):
-      # Extract frame
+  # Convert the annotation time stamp (in original video) to a time in the clip
+  annot_time  = annot[1]
+  clip_start  = clip.start
+  decode_time = annot_time - clip_start
 
+  # Extract a frame at that time stamp to the appropriate place within the
+  # destination directory
+  frame_dest = dest_dir+'/youtubebbdevkit2017/youtubebb2017/JPEGImages/'
+  frame_name = yt_id+'+'+class_id+'+'+obj_id+'+'+str(annot_time)+'.jpg'
+  check_call(['ffmpeg',\
+    '-ss', str(float(decode_time)/1000),\
+    '-i', (annot_clip_path+annot_clip_name),\
+    '-t 1',
+    '-f image2',(frame_dest+frame_name)],
+    stdout=FNULL,stderr=subprocess.STDOUT )
 
 
 def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
   # Get list of annotations
   # Download & extract the annotation list
-  annotations,vids = youtube_bb.parse_annotations(d_set,src_dir)
+  annotations,clips,vids = youtube_bb.parse_annotations(d_set,src_dir)
 
   # Filter out annotations with no matching video
   present_annots = []
@@ -63,11 +76,13 @@ def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
 
   # Run frame decoding in parallel, extract frames from each video
   with futures.ProcessPoolExecutor(max_workers=num_threads) as executor:
-    fs = [executor.submit(decode_vid,vid) for vid in downloaded_vids]
+    fs = [executor.submit(decode_vid,clips,annot,dest_dir) for annot in annot_to_convert]
     for i, f in enumerate(futures.as_completed(fs)):
       # Write progress to error so that it can be seen
       sys.stderr.write( \
-        "Decoded video: {} / {} \r".format(i, len(downloaded_vids)))
+        "Decoded frame: {} / {} \r".format(i, len(annot_to_convert)))
+
+  # Write txt files
 
 
 if __name__ == '__main__':
