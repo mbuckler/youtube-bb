@@ -90,6 +90,7 @@ def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
 
 
 if __name__ == '__main__':
+
   assert(len(sys.argv) == 6), \
     ["Usage: python voc_convert.py [VID_SOURCE] [DSET_DEST] [NUM_THREADS]",
      "[NUM_TRAIN] [NUM_VAL]"]
@@ -98,15 +99,26 @@ if __name__ == '__main__':
   num_threads      = sys.argv[3]
   num_train_frames = sys.argv[4]
   num_val_frames   = sys.argv[5]
+
   # Download VOC 2007 devkit
   devkit_link = \
     "http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCdevkit_08-Jun-2007.tar"
   check_call(['wget','-P',dest_dir,devkit_link])
+
+  # Extract, rename, add missing directories
   check_call(['tar','-xvf',
               dest_dir+'VOCdevkit_08-Jun-2007.tar',
               '-C',dest_dir])
   check_call(['rm',dest_dir+'VOCdevkit_08-Jun-2007.tar'])
   check_call(['mv',dest_dir+'VOCdevkit',dest_dir+'youtubebbdevkit'])
+  check_call(['mkdir','-p',
+              dest_dir+'youtubebbdevkit/youtubebb2017/ImageSets/Main'])
+  check_call(['mkdir','-p',
+              dest_dir+'youtubebbdevkit/youtubebb2017/ImageSets/Layout'])
+  check_call(['mkdir','-p',
+              dest_dir+'youtubebbdevkit/youtubebb2017/JPEGImages'])
+  check_call(['mkdir','-p',
+              dest_dir+'youtubebbdevkit/youtubebb2017/Annotations'])
 
   # Decode frames for training detection
   '''
