@@ -83,14 +83,15 @@ def dl_and_cut(vid):
       check_call(['mkdir', '-p', class_dir])
 
       # Cut out the clip within the downloaded video and save the clip
-      # in the correct class directory. Note that the -ss argument coming
-      # first tells ffmpeg to start off with an I frame (no frozen start)
-      # https://trac.ffmpeg.org/wiki/Seeking
+      # in the correct class directory. Full re-encoding is used to maintain
+      # frame accuracy. See here for more detail:
+      # http://www.markbuckler.com/post/cutting-ffmpeg/
       check_call(['ffmpeg',\
-        '-ss', str(float(clip.start)/1000),\
         '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
+        '-ss', str(float(clip.start)/1000),\
+        '-strict','-2',\
         '-t', str((float(clip.start)+float(clip.stop))/1000),\
-        '-c','copy',class_dir+'/'+clip.name+'.mp4'],
+        class_dir+'/'+clip.name+'.mp4'],
          stdout=FNULL,stderr=subprocess.STDOUT )
 
   # Remove the temporary video
