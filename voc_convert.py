@@ -94,6 +94,8 @@ def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
 
   print(d_set+': Finished decoding frames!')
 
+  return annot_to_convert
+
 if __name__ == '__main__':
 
   assert(len(sys.argv) == 6), \
@@ -126,19 +128,20 @@ if __name__ == '__main__':
               dest_dir+'youtubebbdevkit/youtubebb2017/Annotations'])
 
   # Decode frames for training detection
-  decode_frames(youtube_bb.d_sets[2],
-                src_dir,
-                dest_dir,
-                num_threads,
-                num_train_frames)
+  train_frame_annots = decode_frames(youtube_bb.d_sets[2],
+    src_dir,
+    dest_dir,
+    num_threads,
+    num_train_frames)
+
 
   # Decode frames for validation detection
   '''
-  decode_frames(youtube_bb.d_sets[3],
-                src_dir,
-                dest_dir,
-                num_threads,
-                num_val_frames)
+  val_frame_annots = decode_frames(youtube_bb.d_sets[3],
+    src_dir,
+    dest_dir,
+    num_threads,
+    num_val_frames)
   '''
 
   # Write txt files
