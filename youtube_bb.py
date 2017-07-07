@@ -25,17 +25,24 @@ import sys
 import csv
 
 # The data sets to be downloaded
-d_sets = ['yt_bb_classification_train',
-          'yt_bb_classification_validation',
+d_sets = ['yt_bb_detection_validation',
           'yt_bb_detection_train',
-          'yt_bb_detection_validation']
+          'yt_bb_classification_train',
+          'yt_bb_classification_validation']
 
 # Host location of segment lists
 web_host = 'https://research.google.com/youtube-bb/'
 
 # Video clip class
 class video_clip(object):
-  def __init__(self,name,yt_id,start,stop,class_id,obj_id,d_set_dir):
+  def __init__(self,
+               name,
+               yt_id,
+               start,
+               stop,
+               class_id,
+               obj_id,
+               d_set_dir):
     # name = yt_id+class_id+object_id
     self.name     = name
     self.yt_id    = yt_id
@@ -52,6 +59,7 @@ class video_clip(object):
               self.class_id+', '+ \
               self.obj_id+']\n')
 
+# Video class
 class video(object):
   def __init__(self,yt_id,first_clip):
     self.yt_id = yt_id
@@ -60,6 +68,40 @@ class video(object):
     print(self.yt_id)
     for clip in self.clips:
       clip.print_all()
+
+# XML detection annotation class
+class xml_annot(object):
+  def __init__(self,
+               annot_name,
+               filename,
+               annotation,
+               image_width,
+               image_height,
+               truncated,
+               xmin,
+               ymin,
+               xmax,
+               ymax)
+  self.annot_name           = annot_name
+  self.folder               = "youtubebb2017"
+  self.filename             = filename
+  self.database             = "YouTube Bounding Box"
+  self.annotation           = ','.join(annotation)
+  self.image_source         = "YouTube"
+  self.image_flickerid      = "N/A"
+  self.owner_name           = "N/A"
+  self.self.owner_flickerid = "N/A"
+  self.image_width          = str(image_width)
+  self.image_height         = str(image_height)
+  self.image_depth          = str(3)
+  self.class_name           = annotation[3]
+  self.truncated            = str(truncated)
+  self.difficult            = str(0)
+  self.xmin                 = str(xmin)
+  self.ymin                 = str(ymin)
+  self.xmax                 = str(xmax)
+  self.ymax                 = str(ymax)
+
 
 # Download and cut a clip to size
 def dl_and_cut(vid):

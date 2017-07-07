@@ -18,6 +18,7 @@ import sys
 import random
 import os
 import subprocess
+from PIL import Image
 from concurrent import futures
 from subprocess import check_call
 
@@ -96,6 +97,60 @@ def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
 
   return annot_to_convert
 
+def write_xml_annot(
+
+def write_xml_annots(dest_dir,annots):
+
+  # For each annotation
+  for annot in annots:
+    # Get file details
+    yt_id      = annot[0]
+    annot_time = annot[1]
+    class_id   = annot[2]
+    obj_id     = annot[4]
+    annot_name = yt_id+'+'+class_id+'+'+obj_id+'+'annot_time
+    filename   = annot_name+'.jpg'
+
+    # Get image dimensions
+    img = Image.open(dest_dir + \
+                     'youtubebbdevkit/youtubebb2017/JPEGImages/' + \
+                     filename)
+    image_width  = img.get_width()
+    image_height = img.get_height()
+
+    # Check to see if this annotation is on the border
+    # (likely a truncated annotation)
+    xmin_frac = float(annot[6])
+    xmax_frac = float(annot[7])
+    ymin_frac = float(annot[8])
+    ymax_frac = float(annot[9])
+    if ( (xmin_frac == 0.0) or (xmax_frac == 1.0) or \
+            (ymin_frac == 0.0) or (ymax_frac == 1.0) ):
+      truncated = 1
+    else:
+      truncated = 0
+
+    # Convert bounding boxes to pixel dimensions
+    xmin_pix = int(float(image_width)*xmin_frac)
+    ymin_pix = int(float(image_height)*ymin_frac)
+    xmax_pix = int(float(image_width)*xmax_frac)
+    ymax_pix = int(float(image_height)*ymax_frac)
+
+    xml_params = xml_annot( \
+      annot_name,
+      filename,
+      annot,
+      image_width,
+      image_height,
+      truncated,
+      xmin,
+      ymin,
+      xmax,
+      ymax)
+
+    write_xml_annot(xml_params)
+
+
 if __name__ == '__main__':
 
   assert(len(sys.argv) == 6), \
@@ -134,6 +189,7 @@ if __name__ == '__main__':
     num_threads,
     num_train_frames)
 
+  write_xml_annots(
 
   # Decode frames for validation detection
   '''
