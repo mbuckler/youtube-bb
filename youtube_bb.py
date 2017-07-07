@@ -81,26 +81,26 @@ class xml_annot(object):
                xmin,
                ymin,
                xmax,
-               ymax)
-  self.annot_name     = annot_name
-  self.folder         = "youtubebb2017"
-  self.filename       = filename
-  self.database       = "YouTube Bounding Box"
-  self.annotation     = ','.join(annotation)
-  self.image_source   = "YouTube"
-  self.image_flickrid = "N/A"
-  self.owner_name     = "N/A"
-  self.owner_flickrid = "N/A"
-  self.image_width    = str(image_width)
-  self.image_height   = str(image_height)
-  self.image_depth    = str(3)
-  self.class_name     = annotation[3]
-  self.truncated      = str(truncated)
-  self.difficult      = str(0)
-  self.xmin           = str(xmin)
-  self.ymin           = str(ymin)
-  self.xmax           = str(xmax)
-  self.ymax           = str(ymax)
+               ymax):
+    self.annot_name     = annot_name
+    self.folder         = "youtubebb2017"
+    self.filename       = filename
+    self.database       = "YouTube Bounding Box"
+    self.annotation     = ','.join(annotation)
+    self.image_source   = "YouTube"
+    self.image_flickrid = "N/A"
+    self.owner_name     = "N/A"
+    self.owner_flickrid = "N/A"
+    self.image_width    = str(image_width)
+    self.image_height   = str(image_height)
+    self.image_depth    = str(3)
+    self.class_name     = annotation[3]
+    self.truncated      = str(truncated)
+    self.difficult      = str(0)
+    self.xmin           = str(xmin)
+    self.ymin           = str(ymin)
+    self.xmax           = str(xmax)
+    self.ymax           = str(ymax)
 
 
 # Download and cut a clip to size

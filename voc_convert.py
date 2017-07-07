@@ -18,8 +18,8 @@ import sys
 import random
 import os
 import subprocess
-from xml.etree.ElementTree import Element, SubElement, Comment
-from ElementTree_pretty import prettify
+from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+from xml.dom import minidom
 from PIL import Image
 from concurrent import futures
 from subprocess import check_call
@@ -153,11 +153,13 @@ def write_xml_annot(dest_dir,xml_params):
   ymax = SubElement(bndbox, 'ymax')
   ymax.text = xml_params.ymax
 
-  f = open(dest_dir + \
-           'youtubebbdevkit/youtubebb2017/Annotations/' + \
-           xml_params.annot_name + \
-           '.xml', 'w')
-  f.write(prettify(xml_annot))
+  # Write the XML file
+  xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent="   ")
+  with open(dest_dir + \
+            'youtubebbdevkit/youtubebb2017/Annotations/' + \
+            xml_params.annot_name + \
+            '.xml', 'w') as f:
+    f.write(xml_str)
 
 def write_xml_annots(dest_dir,annots):
 
@@ -168,7 +170,7 @@ def write_xml_annots(dest_dir,annots):
     annot_time = annot[1]
     class_id   = annot[2]
     obj_id     = annot[4]
-    annot_name = yt_id+'+'+class_id+'+'+obj_id+'+'annot_time
+    annot_name = yt_id+'+'+class_id+'+'+obj_id+'+'+annot_time
     filename   = annot_name+'.jpg'
 
     # Get image dimensions
@@ -249,7 +251,7 @@ if __name__ == '__main__':
     num_threads,
     num_train_frames)
 
-  write_xml_annots(
+  write_xml_annots(dest_dir,train_frame_annots)
 
   # Decode frames for validation detection
   '''
