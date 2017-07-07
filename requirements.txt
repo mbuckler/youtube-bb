@@ -3,3 +3,4 @@ youtube-dl
 imageio
 moviepy
 ffmpy
+python-imaging
