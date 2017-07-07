@@ -18,6 +18,8 @@ import sys
 import random
 import os
 import subprocess
+from xml.etree.ElementTree import Element, SubElement, Comment
+from ElementTree_pretty import prettify
 from PIL import Image
 from concurrent import futures
 from subprocess import check_call
@@ -97,7 +99,65 @@ def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
 
   return annot_to_convert
 
-def write_xml_annot(
+def write_xml_annot(dest_dir,xml_params):
+  # Write the xml annotation to file
+  xml_annot = Element('annotation')
+
+  folder = SubElement(xml_annot, 'folder')
+  folder.text = xml_params.folder
+
+  filename = SubElement(xml_annot, 'filename')
+  filename.text = xml_params.filename
+
+  source = SubElement(xml_annot, 'source')
+  database = SubElement(source, 'database')
+  database.text = xml_params.database
+  annotation = SubElement(source, 'annotation')
+  annotation.text = xml_params.annotation
+  image_source = SubElement(source, 'image')
+  image_source.text = xml_params.image_source
+  image_flickrid = SubElement(source, 'flickrid')
+  image_flickrid.text = xml_params.image_flickrid
+
+  owner = SubElement(xml_annot, 'owner')
+  owner_flickrid = SubElement(owner, 'flickrid')
+  owner_flickrid.text = xml_params.owner_flickrid
+  owner_name = SubElement(owner, 'name')
+  owner_name.text = xml_params.owner_name
+
+  size = SubElement(xml_annot, 'size')
+  width = SubElement(size, 'width')
+  width.text = xml_params.width
+  height = SubElement(size, 'height')
+  height.text = xml_params.height
+  depth = SubElement(size, 'depth')
+  depth.text = xml_params.depth
+
+  segmented = SubElement(xml_annot, 'segmented')
+  segmented.text = xml_params.segmented
+
+  object_ = SubElement(xml_annot, 'object')
+  class_name = SubElement(object_, 'name')
+  class_name.text = xml_params.class_name
+  truncated = SubElement(object_, 'truncated')
+  truncated.text = xml_params.truncated
+  difficult = SubElement(object_, 'difficult')
+  difficult.text = xml_params.difficult
+  bndbox = SubElement(object_, 'bndbox')
+  xmin = SubElement(bndbox, 'xmin')
+  xmin.text = xml_params.xmin
+  ymin = SubElement(bndbox, 'ymin')
+  ymin.text = xml_params.ymin
+  xmax = SubElement(bndbox, 'xmax')
+  xmax.text = xml_params.xmax
+  ymax = SubElement(bndbox, 'ymax')
+  ymax.text = xml_params.ymax
+
+  f = open(dest_dir + \
+           'youtubebbdevkit/youtubebb2017/Annotations/' + \
+           xml_params.annot_name + \
+           '.xml', 'w')
+  f.write(prettify(xml_annot))
 
 def write_xml_annots(dest_dir,annots):
 
@@ -148,7 +208,7 @@ def write_xml_annots(dest_dir,annots):
       xmax,
       ymax)
 
-    write_xml_annot(xml_params)
+    write_xml_annot(dest_dir,xml_params)
 
 
 if __name__ == '__main__':
