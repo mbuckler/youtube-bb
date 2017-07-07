@@ -46,10 +46,10 @@ def decode_frame(clips,annot,d_set,src_dir,dest_dir):
   # Extract a frame at that time stamp to the appropriate place within the
   # destination directory
   frame_dest = dest_dir+'/youtubebbdevkit/youtubebb2017/JPEGImages/'
-  frame_name = yt_id+'+'+class_id+'+'+obj_id+'+'+str(annot_time)+'.jpg'
+  frame_name = yt_id+'+'+class_id+'+'+obj_id+'+'+str(int(annot_time))+'.jpg'
   FNULL = open(os.devnull, 'w')
   check_call(['ffmpeg',\
-    '-ss', str(float(decode_time)/1000),\
+    '-ss', str(float(decode_time)/1000.0),\
     '-i', (annot_clip_path+annot_clip_name),\
     '-qscale:v','2',\
     '-vframes','1',\
@@ -127,11 +127,11 @@ def write_xml_annot(dest_dir,xml_params):
 
   size = SubElement(xml_annot, 'size')
   width = SubElement(size, 'width')
-  width.text = xml_params.width
+  width.text = xml_params.image_width
   height = SubElement(size, 'height')
-  height.text = xml_params.height
+  height.text = xml_params.image_height
   depth = SubElement(size, 'depth')
-  depth.text = xml_params.depth
+  depth.text = xml_params.image_depth
 
   segmented = SubElement(xml_annot, 'segmented')
   segmented.text = xml_params.segmented
@@ -154,7 +154,7 @@ def write_xml_annot(dest_dir,xml_params):
   ymax.text = xml_params.ymax
 
   # Write the XML file
-  xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent="   ")
+  xmlstr = minidom.parseString(tostring(xml_annot)).toprettyxml(indent="   ")
   with open(dest_dir + \
             'youtubebbdevkit/youtubebb2017/Annotations/' + \
             xml_params.annot_name + \
@@ -177,8 +177,7 @@ def write_xml_annots(dest_dir,annots):
     img = Image.open(dest_dir + \
                      'youtubebbdevkit/youtubebb2017/JPEGImages/' + \
                      filename)
-    image_width  = img.get_width()
-    image_height = img.get_height()
+    image_width,image_height  = img.size
 
     # Check to see if this annotation is on the border
     # (likely a truncated annotation)
@@ -198,17 +197,17 @@ def write_xml_annots(dest_dir,annots):
     xmax_pix = int(float(image_width)*xmax_frac)
     ymax_pix = int(float(image_height)*ymax_frac)
 
-    xml_params = xml_annot( \
+    xml_params = youtube_bb.xml_annot( \
       annot_name,
       filename,
       annot,
       image_width,
       image_height,
       truncated,
-      xmin,
-      ymin,
-      xmax,
-      ymax)
+      xmin_pix,
+      ymin_pix,
+      xmax_pix,
+      ymax_pix)
 
     write_xml_annot(dest_dir,xml_params)
 

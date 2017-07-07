@@ -11,7 +11,7 @@
 ########################################################################
 
 from __future__ import unicode_literals
-import imageio
+#import imageio
 from ffmpy import FFmpeg
 from subprocess import check_call
 from concurrent import futures
@@ -27,7 +27,7 @@ import csv
 # The data sets to be downloaded
 d_sets = [
           'yt_bb_classification_train',
-          'yt_bb_classification_validation'
+          'yt_bb_classification_validation',
           'yt_bb_detection_train',
           'yt_bb_detection_validation',
           ]
@@ -88,7 +88,7 @@ class xml_annot(object):
     self.folder         = "youtubebb2017"
     self.filename       = filename
     self.database       = "YouTube Bounding Box"
-    self.annotation     = ','.join(annotation)
+    self.annotation     = ",".join(annotation)
     self.image_source   = "YouTube"
     self.image_flickrid = "N/A"
     self.owner_name     = "N/A"
@@ -96,6 +96,7 @@ class xml_annot(object):
     self.image_width    = str(image_width)
     self.image_height   = str(image_height)
     self.image_depth    = str(3)
+    self.segmented      = str(0)
     self.class_name     = annotation[3]
     self.truncated      = str(truncated)
     self.difficult      = str(0)
