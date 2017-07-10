@@ -48,13 +48,16 @@ def decode_frame(clips,annot,d_set,src_dir,dest_dir):
   frame_dest = dest_dir+'/youtubebbdevkit/youtubebb2017/JPEGImages/'
   frame_name = yt_id+'+'+class_id+'+'+obj_id+'+'+str(int(annot_time))+'.jpg'
   FNULL = open(os.devnull, 'w')
+  # In case the decode doesn't complete, try again
+  #while(not(os.path.exists(frame_dest+frame_name))):
   check_call(['ffmpeg',\
-    '-ss', str(float(decode_time)/1000.0),\
-    '-i', (annot_clip_path+annot_clip_name),\
-    '-qscale:v','2',\
-    '-vframes','1',\
-    (frame_dest+frame_name)],\
-    stdout=FNULL,stderr=subprocess.STDOUT )
+      '-ss', str(float(decode_time)/1000.0),\
+      '-i', (annot_clip_path+annot_clip_name),\
+      '-qscale:v','2',\
+      '-vframes','1',\
+      '-threads','1',\
+      (frame_dest+frame_name)],\
+      stdout=FNULL,stderr=subprocess.STDOUT )
 
 
 def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
@@ -154,7 +157,7 @@ def write_xml_annot(dest_dir,xml_params):
   ymax.text = xml_params.ymax
 
   # Write the XML file
-  xmlstr = minidom.parseString(tostring(xml_annot)).toprettyxml(indent="   ")
+  xml_str = minidom.parseString(tostring(xml_annot)).toprettyxml(indent="   ")
   with open(dest_dir + \
             'youtubebbdevkit/youtubebb2017/Annotations/' + \
             xml_params.annot_name + \
