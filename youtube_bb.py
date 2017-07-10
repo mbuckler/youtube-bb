@@ -11,7 +11,6 @@
 ########################################################################
 
 from __future__ import unicode_literals
-#import imageio
 from ffmpy import FFmpeg
 from subprocess import check_call
 from concurrent import futures
@@ -136,6 +135,7 @@ def dl_and_cut(vid):
         '-ss', str(float(clip.start)/1000),\
         '-strict','-2',\
         '-t', str((float(clip.start)+float(clip.stop))/1000),\
+        '-threads','1',\
         class_dir+'/'+clip.name+'.mp4'],
          stdout=FNULL,stderr=subprocess.STDOUT )
 
