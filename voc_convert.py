@@ -25,7 +25,11 @@ from concurrent import futures
 from subprocess import check_call
 
 ## Decode all the clips in a given vid
-def decode_frame(clips,annot,d_set,src_dir,dest_dir):
+def decode_frame(clips,
+                 annot,
+                 d_set,
+                 src_dir,
+                 dest_dir):
   yt_id    = annot[0]
   class_id = annot[2]
   obj_id   = annot[4]
@@ -60,13 +64,19 @@ def decode_frame(clips,annot,d_set,src_dir,dest_dir):
       stdout=FNULL,stderr=subprocess.STDOUT )
 
 
-def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
+def decode_frames(d_set,
+                  src_dir,
+                  dest_dir,
+                  num_threads,
+                  num_annots,
+                  include_absent):
   # Get list of annotations
   # Download & extract the annotation list
   annotations,clips,vids = youtube_bb.parse_annotations(d_set,src_dir)
 
   # Filter out annotations with no matching video
-  print(d_set+': Filtering out annotations for missing videos...')
+  print(d_set + \
+    ': Filtering out missing frames (and absent frames if requested)...')
   present_annots = []
   for annot in annotations:
     yt_id    = annot[0]
@@ -74,8 +84,11 @@ def decode_frames(d_set,src_dir,dest_dir,num_threads,num_annots):
     obj_id   = annot[4]
     annot_clip_path = src_dir+'/'+d_set+'/'+class_id+'/'
     annot_clip_name = yt_id+'+'+class_id+'+'+obj_id+'.mp4'
+    # If video exists
     if (os.path.exists(annot_clip_path+annot_clip_name)):
-      present_annots.append(annot)
+      # If we are including all frames, or if the labeled object is present
+      if ( include_absent or (annot[5]=='present') ):
+        present_annots.append(annot)
 
   # Gather subset of random annotations
   print(d_set+': Gathering annotations/frames to decode...')
@@ -217,14 +230,21 @@ def write_xml_annots(dest_dir,annots):
 
 if __name__ == '__main__':
 
-  assert(len(sys.argv) == 6), \
+  assert(len(sys.argv) == 7), \
     ["Usage: python voc_convert.py [VID_SOURCE] [DSET_DEST] [NUM_THREADS]",
-     "[NUM_TRAIN] [NUM_VAL]"]
+     "[NUM_TRAIN] [NUM_VAL] [INCL_ABS]"]
   src_dir          = sys.argv[1]+'/'
   dest_dir         = sys.argv[2]+'/'
   num_threads      = int(sys.argv[3])
   num_train_frames = int(sys.argv[4])
   num_val_frames   = int(sys.argv[5])
+  assert((sys.argv[6]=='0')or(sys.argv[6]=='1')), \
+    ["Please indicate if frames with absent objects should be included with",
+     "a 1, or should not be included with a 0"]
+  if sys.argv[6] == '1':
+    include_absent = True
+  else:
+    include_absent = False
 
   # Download VOC 2007 devkit
   devkit_link = \
@@ -251,7 +271,8 @@ if __name__ == '__main__':
     src_dir,
     dest_dir,
     num_threads,
-    num_train_frames)
+    num_train_frames,
+    include_absent)
 
   write_xml_annots(dest_dir,train_frame_annots)
 
@@ -261,7 +282,8 @@ if __name__ == '__main__':
     src_dir,
     dest_dir,
     num_threads,
-    num_val_frames)
+    num_val_frames,
+    include_absent)
   '''
 
   # Write txt files
