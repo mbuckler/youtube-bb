@@ -53,8 +53,6 @@ def decode_frame(clips,
   frame_dest = dest_dir+'/youtubebbdevkit/youtubebb2017/JPEGImages/'
   frame_name = yt_id+'+'+class_id+'+'+obj_id+'+'+str(int(annot_time))+'.jpg'
   FNULL = open(os.devnull, 'w')
-  # In case the decode doesn't complete, try again
-  #while(not(os.path.exists(frame_dest+frame_name))):
   check_call(['ffmpeg',\
       '-ss', str(float(decode_time)/1000.0),\
       '-i', (annot_clip_path+annot_clip_name),\
@@ -330,7 +328,7 @@ if __name__ == '__main__':
               dest_dir+'youtubebbdevkit/youtubebb2017/Annotations'])
 
   # Decode frames for training detection
-  train_frame_annots = decode_frames(youtube_bb.d_sets[2],
+  train_frame_annots = decode_frames('yt_bb_detection_train',
     src_dir,
     dest_dir,
     num_threads,
@@ -341,7 +339,7 @@ if __name__ == '__main__':
   train_xml_annots = write_xml_annots(dest_dir,train_frame_annots)
 
   # Decode frames for validation detection
-  val_frame_annots = decode_frames(youtube_bb.d_sets[3],
+  val_frame_annots = decode_frames('yt_bb_detection_validation',
     src_dir,
     dest_dir,
     num_threads,
