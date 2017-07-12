@@ -25,10 +25,10 @@ import csv
 
 # The data sets to be downloaded
 d_sets = [
-          'yt_bb_classification_train',
-          'yt_bb_classification_validation',
           'yt_bb_detection_train',
           'yt_bb_detection_validation',
+          'yt_bb_classification_train',
+          'yt_bb_classification_validation',
           ]
 
 # The classes included and their indices
@@ -188,6 +188,19 @@ def parse_annotations(d_set,dl_dir):
   with open((d_set+'.csv'), 'rt') as f:
     reader      = csv.reader(f)
     annotations = list(reader)
+
+  # Convert the annotation timestamps to be integers for correct sorting
+  annotations = [ \
+    [x[0],
+     int(x[1]),
+     x[2],
+     x[3],
+     x[4],
+     x[5],
+     x[6],
+     x[7],
+     x[8],
+     x[9]] for x in annotations ]
 
   # Sort to de-interleave the annotations for easier parsing
   if ('classification' in d_set):
