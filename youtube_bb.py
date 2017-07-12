@@ -31,6 +31,34 @@ d_sets = [
           'yt_bb_detection_validation',
           ]
 
+# The classes included and their indices
+class_list = [\
+              [0,'person'],
+              [1,'bird'],
+              [2,'bicycle'],
+              [3,'boat'],
+              [4,'bus'],
+              [5,'bear'],
+              [6,'cow'],
+              [7,'cat'],
+              [8,'giraffe'],
+              [9,'potted plant'],
+              [10,'horse'],
+              [11,'motorcycle'],
+              [12,'knife'],
+              [13,'airplane'],
+              [14,'skateboard'],
+              [15,'train'],
+              [16,'truck'],
+              [17,'zebra'],
+              [18,'toilet'],
+              [19,'dog'],
+              [20,'elephant'],
+              [21,'umbrella'],
+              [22,'none'],
+              [23,'car'],
+              ]
+
 # Host location of segment lists
 web_host = 'https://research.google.com/youtube-bb/'
 

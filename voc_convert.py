@@ -179,7 +179,7 @@ def write_xml_annot(dest_dir,xml_params):
     f.write(xml_str)
 
 def write_xml_annots(dest_dir,annots):
-
+  xml_annots = []
   # For each annotation
   for annot in annots:
     # Get file details
@@ -227,6 +227,9 @@ def write_xml_annots(dest_dir,annots):
       ymax_pix)
 
     write_xml_annot(dest_dir,xml_params)
+    xml_annots.append(xml_params)
+  return xml_annots
+
 
 def write_Layout_file(dest_dir, filename, xml_annots):
   out_file =  open((dest_dir + \
@@ -242,8 +245,10 @@ def write_Main_file(dest_dir, filename, xml_annots, class_):
                     'youtubebbdevkit/youtubebb2017/ImageSets/Main/' + \
                     filename),
                    "w")
+  # If this is not an empty list
   for Main_annot in xml_annots:
-    if Main_annot.class_name == class_[1]:
+    if ((Main_annot.class_name == class_[1]) and \
+        ('present' in Main_annot.annotation)):
       # Class of interest is present
       present_flag = '1'
     else:
