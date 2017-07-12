@@ -229,17 +229,19 @@ def write_xml_annots(dest_dir,annots):
     write_xml_annot(dest_dir,xml_params)
 
 def write_Layout_file(dest_dir, filename, xml_annots):
-  out_file =  open(dest_dir + \
-                   'youtubebbdevkit/youtubebb2017/ImageSets/Layout/' + \
-                   filename):
+  out_file =  open((dest_dir + \
+                    'youtubebbdevkit/youtubebb2017/ImageSets/Layout/' + \
+                    filename),
+                    "w")
   for Layout_annot in xml_annots:
     out_file.write(Layout_annot.annot_name+'\n')
   out_file.close()
 
 def write_Main_file(dest_dir, filename, xml_annots, class_):
-  out_file =  open(dest_dir + \
-                   'youtubebbdevkit/youtubebb2017/ImageSets/Main/' + \
-                   filename):
+  out_file =  open((dest_dir + \
+                    'youtubebbdevkit/youtubebb2017/ImageSets/Main/' + \
+                    filename),
+                   "w")
   for Main_annot in xml_annots:
     if Main_annot.class_name == class_[1]:
       # Class of interest is present
@@ -252,9 +254,7 @@ def write_Main_file(dest_dir, filename, xml_annots, class_):
 def write_txt_files(dest_dir, train_xml_annots, val_xml_annots):
 
   # Get the list of classes
-  class_list = []
-  with open('idx_human.csv', 'rb') as class_csv:
-    class_list = csv.reader(class_csv, delimiter=',', quotechar='|')
+  class_list = youtube_bb.class_list
 
   # NOTE:
   # VOC converted test: YouTube BoundingBox validation
@@ -332,22 +332,21 @@ if __name__ == '__main__':
     num_train_frames,
     include_absent)
 
-  # Write the xml annotations for traiing detection
-  xml_annots = write_xml_annots(dest_dir,train_frame_annots)
+  # Write the xml annotations for training detection
+  train_xml_annots = write_xml_annots(dest_dir,train_frame_annots)
 
   # Decode frames for validation detection
-  '''
   val_frame_annots = decode_frames(youtube_bb.d_sets[3],
     src_dir,
     dest_dir,
     num_threads,
     num_val_frames,
     include_absent)
-  '''
+
+  # Write the xml annotations for validation detection
+  val_xml_annots = write_xml_annots(dest_dir,val_frame_annots)
 
   # Write txt files
-  '''
-  TBD
-  '''
+  write_txt_files(dest_dir, train_xml_annots, val_xml_annots)
 
 
