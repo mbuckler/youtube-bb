@@ -17,6 +17,7 @@ import youtube_bb
 import sys
 import random
 import os
+import csv
 import subprocess
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 from xml.dom import minidom
@@ -227,6 +228,63 @@ def write_xml_annots(dest_dir,annots):
 
     write_xml_annot(dest_dir,xml_params)
 
+def write_Layout_file(dest_dir, filename, xml_annots):
+  out_file =  open(dest_dir + \
+                   'youtubebbdevkit/youtubebb2017/ImageSets/Layout/' + \
+                   filename):
+  for Layout_annot in xml_annots:
+    out_file.write(Layout_annot.annot_name+'\n')
+  out_file.close()
+
+def write_Main_file(dest_dir, filename, xml_annots, class_):
+  out_file =  open(dest_dir + \
+                   'youtubebbdevkit/youtubebb2017/ImageSets/Main/' + \
+                   filename):
+  for Main_annot in xml_annots:
+    if Main_annot.class_name == class_[1]:
+      # Class of interest is present
+      present_flag = '1'
+    else:
+      present_flag = '-1'
+    out_file.write(Main_annot.annot_name+' '+present_flag+'\n')
+  out_file.close()
+
+def write_txt_files(dest_dir, train_xml_annots, val_xml_annots):
+
+  # Get the list of classes
+  class_list = []
+  with open('idx_human.csv', 'rb') as class_csv:
+    class_list = csv.reader(class_csv, delimiter=',', quotechar='|')
+
+  # NOTE:
+  # VOC converted test: YouTube BoundingBox validation
+  # VOC converted train: YouTube BoundingBox training
+  # VOC converted validation: Empty
+  d_set_sections = ['test',
+                    'train',
+                    'trainval',
+                    'val',
+                    ]
+  section_annots = [val_xml_annots,
+                    train_xml_annots,
+                    train_xml_annots,
+                    [],
+                    ]
+  # Print Layout files (test, train, trainval, val)
+  for idx in range(len(d_set_sections)):
+    write_Layout_file(dest_dir,
+                      (d_set_sections[idx]+'.txt'),
+                      section_annots[idx])
+
+  # Print Main files (all classes for each dataset)
+  for idx in range(len(d_set_sections)):
+    for class_ in class_list:
+      # Skip the None class (no examples for detection)
+      if class_[1] != 'none':
+        write_Main_file(dest_dir,
+                        (class_[1]+'_'+d_set_sections[idx]+'.txt'),
+                        section_annots[idx],
+                        class_)
 
 if __name__ == '__main__':
 
@@ -274,7 +332,8 @@ if __name__ == '__main__':
     num_train_frames,
     include_absent)
 
-  write_xml_annots(dest_dir,train_frame_annots)
+  # Write the xml annotations for traiing detection
+  xml_annots = write_xml_annots(dest_dir,train_frame_annots)
 
   # Decode frames for validation detection
   '''
