@@ -90,7 +90,7 @@ def decode_frames(d_set,
       if ( include_absent or (annot[5]=='present') ):
         # If this is not the last frame
         annot_clip = next((x for x in clips if x.name == clip_name), None)
-        if (int(annot_clip.stop) != int(annot[1]):
+        if (int(annot_clip.stop) != int(annot[1])):
           present_annots.append(annot)
 
   # Gather subset of random annotations
@@ -355,5 +355,3 @@ if __name__ == '__main__':
 
   # Write txt files
   write_txt_files(dest_dir, train_xml_annots, val_xml_annots)
-
-
