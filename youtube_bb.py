@@ -25,8 +25,8 @@ import csv
 
 # The data sets to be downloaded
 d_sets = [
-          'yt_bb_detection_train',
           'yt_bb_detection_validation',
+          'yt_bb_detection_train',
           'yt_bb_classification_train',
           'yt_bb_classification_validation',
           ]
@@ -191,16 +191,8 @@ def parse_annotations(d_set,dl_dir):
 
   # Convert the annotation timestamps to be integers for correct sorting
   annotations = [ \
-    [x[0],
-     int(x[1]),
-     x[2],
-     x[3],
-     x[4],
-     x[5],
-     x[6],
-     x[7],
-     x[8],
-     x[9]] for x in annotations ]
+    [x[0],int(x[1]),x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]] \
+      for x in annotations ]
 
   # Sort to de-interleave the annotations for easier parsing
   if ('classification' in d_set):
@@ -211,6 +203,11 @@ def parse_annotations(d_set,dl_dir):
     class_or_det = 'det'
     # Sort by youtube_id, class, obj_id and then timestamp
     annotations.sort(key=lambda l: (l[0],l[2],l[4],l[1]))
+
+  # Convert timestamps back to strings for rest of pipeline
+  annotations = [ \
+    [x[0],str(x[1]),x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]] \
+      for x in annotations ]
 
   current_clip_name = ['blank']
   clips             = []
