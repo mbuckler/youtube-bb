@@ -75,7 +75,7 @@ def decode_frames(d_set,
 
   # Filter out annotations with no matching video
   print(d_set + \
-    ': Filtering out missing frames (and absent frames if requested)...')
+    ': Filtering out last, missing, and or absent frames (if requested)...')
   present_annots = []
   for annot in annotations:
     yt_id    = annot[0]
@@ -83,11 +83,15 @@ def decode_frames(d_set,
     obj_id   = annot[4]
     annot_clip_path = src_dir+'/'+d_set+'/'+class_id+'/'
     annot_clip_name = yt_id+'+'+class_id+'+'+obj_id+'.mp4'
+    clip_name = yt_id+'+'+class_id+'+'+obj_id
     # If video exists
     if (os.path.exists(annot_clip_path+annot_clip_name)):
       # If we are including all frames, or if the labeled object is present
       if ( include_absent or (annot[5]=='present') ):
-        present_annots.append(annot)
+        # If this is not the last frame
+        annot_clip = next((x for x in clips if x.name == clip_name), None)
+        if (int(annot_clip.stop) != int(annot[1]):
+          present_annots.append(annot)
 
   # Gather subset of random annotations
   print(d_set+': Gathering annotations/frames to decode...')
