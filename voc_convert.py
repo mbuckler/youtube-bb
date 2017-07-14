@@ -233,16 +233,16 @@ def write_xml_annots(dest_dir,annots):
   return xml_annots
 
 
-def write_Layout_file(dest_dir, filename, xml_annots):
+def write_class_det_files(dest_dir, filename, xml_annots):
   out_file =  open((dest_dir + \
-                    'youtubebbdevkit/youtubebb2017/ImageSets/Layout/' + \
+                    'youtubebbdevkit/youtubebb2017/ImageSets/Main/' + \
                     filename),
                     "w")
   for Layout_annot in xml_annots:
     out_file.write(Layout_annot.annot_name+'\n')
   out_file.close()
 
-def write_Main_file(dest_dir, filename, xml_annots, class_):
+def write_class_files(dest_dir, filename, xml_annots, class_):
   out_file =  open((dest_dir + \
                     'youtubebbdevkit/youtubebb2017/ImageSets/Main/' + \
                     filename),
@@ -277,13 +277,13 @@ def write_txt_files(dest_dir, train_xml_annots, val_xml_annots):
                     train_xml_annots,
                     [],
                     ]
-  # Print Layout files (test, train, trainval, val)
+  # Print Classification/Detection task files (test, train, trainval, val)
   for idx in range(len(d_set_sections)):
-    write_Layout_file(dest_dir,
+    write_class_det_file(dest_dir,
                       (d_set_sections[idx]+'.txt'),
                       section_annots[idx])
 
-  # Print Main files (all classes for each dataset)
+  # Print Classification task files (all classes for each dataset)
   for idx in range(len(d_set_sections)):
     for class_ in class_list:
       # Skip the None class (no examples for detection)
@@ -324,8 +324,6 @@ if __name__ == '__main__':
   check_call(['mv',dest_dir+'VOCdevkit',dest_dir+'youtubebbdevkit'])
   check_call(['mkdir','-p',
               dest_dir+'youtubebbdevkit/youtubebb2017/ImageSets/Main'])
-  check_call(['mkdir','-p',
-              dest_dir+'youtubebbdevkit/youtubebb2017/ImageSets/Layout'])
   check_call(['mkdir','-p',
               dest_dir+'youtubebbdevkit/youtubebb2017/JPEGImages'])
   check_call(['mkdir','-p',
