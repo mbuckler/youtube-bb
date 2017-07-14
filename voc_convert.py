@@ -155,22 +155,23 @@ def write_xml_annot(dest_dir,xml_params):
   segmented = SubElement(xml_annot, 'segmented')
   segmented.text = xml_params.segmented
 
-  object_ = SubElement(xml_annot, 'object')
-  class_name = SubElement(object_, 'name')
-  class_name.text = xml_params.class_name
-  truncated = SubElement(object_, 'truncated')
-  truncated.text = xml_params.truncated
-  difficult = SubElement(object_, 'difficult')
-  difficult.text = xml_params.difficult
-  bndbox = SubElement(object_, 'bndbox')
-  xmin = SubElement(bndbox, 'xmin')
-  xmin.text = xml_params.xmin
-  ymin = SubElement(bndbox, 'ymin')
-  ymin.text = xml_params.ymin
-  xmax = SubElement(bndbox, 'xmax')
-  xmax.text = xml_params.xmax
-  ymax = SubElement(bndbox, 'ymax')
-  ymax.text = xml_params.ymax
+  if ('present' in xml_params.annotation):
+    object_ = SubElement(xml_annot, 'object')
+    class_name = SubElement(object_, 'name')
+    class_name.text = xml_params.class_name
+    truncated = SubElement(object_, 'truncated')
+    truncated.text = xml_params.truncated
+    difficult = SubElement(object_, 'difficult')
+    difficult.text = xml_params.difficult
+    bndbox = SubElement(object_, 'bndbox')
+    xmin = SubElement(bndbox, 'xmin')
+    xmin.text = xml_params.xmin
+    ymin = SubElement(bndbox, 'ymin')
+    ymin.text = xml_params.ymin
+    xmax = SubElement(bndbox, 'xmax')
+    xmax.text = xml_params.xmax
+    ymax = SubElement(bndbox, 'ymax')
+    ymax.text = xml_params.ymax
 
   # Write the XML file
   xml_str = minidom.parseString(tostring(xml_annot)).toprettyxml(indent="   ")
