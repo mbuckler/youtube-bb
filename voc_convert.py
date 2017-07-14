@@ -279,7 +279,7 @@ def write_txt_files(dest_dir, train_xml_annots, val_xml_annots):
                     ]
   # Print Classification/Detection task files (test, train, trainval, val)
   for idx in range(len(d_set_sections)):
-    write_class_det_file(dest_dir,
+    write_class_det_files(dest_dir,
                       (d_set_sections[idx]+'.txt'),
                       section_annots[idx])
 
@@ -288,7 +288,7 @@ def write_txt_files(dest_dir, train_xml_annots, val_xml_annots):
     for class_ in class_list:
       # Skip the None class (no examples for detection)
       if class_[1] != 'none':
-        write_Main_file(dest_dir,
+        write_class_files(dest_dir,
                         (class_[1]+'_'+d_set_sections[idx]+'.txt'),
                         section_annots[idx],
                         class_)
