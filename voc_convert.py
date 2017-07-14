@@ -50,7 +50,7 @@ def decode_frame(clips,
 
   # Extract a frame at that time stamp to the appropriate place within the
   # destination directory
-  frame_dest = dest_dir+'/youtubebbdevkit/youtubebb2017/JPEGImages/'
+  frame_dest = dest_dir+'/youtubebbdevkit2017/youtubebb2017/JPEGImages/'
   frame_name = yt_id+'+'+class_id+'+'+obj_id+'+'+str(int(annot_time))+'.jpg'
   FNULL = open(os.devnull, 'w')
   check_call(['ffmpeg',\
@@ -175,7 +175,7 @@ def write_xml_annot(dest_dir,xml_params):
   # Write the XML file
   xml_str = minidom.parseString(tostring(xml_annot)).toprettyxml(indent="   ")
   with open(dest_dir + \
-            'youtubebbdevkit/youtubebb2017/Annotations/' + \
+            'youtubebbdevkit2017/youtubebb2017/Annotations/' + \
             xml_params.annot_name + \
             '.xml', 'w') as f:
     f.write(xml_str)
@@ -194,7 +194,7 @@ def write_xml_annots(dest_dir,annots):
 
     # Get image dimensions
     img = Image.open(dest_dir + \
-                     'youtubebbdevkit/youtubebb2017/JPEGImages/' + \
+                     'youtubebbdevkit2017/youtubebb2017/JPEGImages/' + \
                      filename)
     image_width,image_height  = img.size
 
@@ -235,7 +235,7 @@ def write_xml_annots(dest_dir,annots):
 
 def write_class_det_files(dest_dir, filename, xml_annots):
   out_file =  open((dest_dir + \
-                    'youtubebbdevkit/youtubebb2017/ImageSets/Main/' + \
+                    'youtubebbdevkit2017/youtubebb2017/ImageSets/Main/' + \
                     filename),
                     "w")
   for Layout_annot in xml_annots:
@@ -244,7 +244,7 @@ def write_class_det_files(dest_dir, filename, xml_annots):
 
 def write_class_files(dest_dir, filename, xml_annots, class_):
   out_file =  open((dest_dir + \
-                    'youtubebbdevkit/youtubebb2017/ImageSets/Main/' + \
+                    'youtubebbdevkit2017/youtubebb2017/ImageSets/Main/' + \
                     filename),
                    "w")
   # If this is not an empty list
@@ -321,13 +321,13 @@ if __name__ == '__main__':
               dest_dir+'VOCdevkit_08-Jun-2007.tar',
               '-C',dest_dir])
   check_call(['rm',dest_dir+'VOCdevkit_08-Jun-2007.tar'])
-  check_call(['mv',dest_dir+'VOCdevkit',dest_dir+'youtubebbdevkit'])
+  check_call(['mv',dest_dir+'VOCdevkit',dest_dir+'youtubebbdevkit2017'])
   check_call(['mkdir','-p',
-              dest_dir+'youtubebbdevkit/youtubebb2017/ImageSets/Main'])
+              dest_dir+'youtubebbdevkit2017/youtubebb2017/ImageSets/Main'])
   check_call(['mkdir','-p',
-              dest_dir+'youtubebbdevkit/youtubebb2017/JPEGImages'])
+              dest_dir+'youtubebbdevkit2017/youtubebb2017/JPEGImages'])
   check_call(['mkdir','-p',
-              dest_dir+'youtubebbdevkit/youtubebb2017/Annotations'])
+              dest_dir+'youtubebbdevkit2017/youtubebb2017/Annotations'])
 
   # Decode frames for training detection
   train_frame_annots = decode_frames('yt_bb_detection_train',
