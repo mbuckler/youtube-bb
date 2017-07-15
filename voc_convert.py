@@ -211,9 +211,11 @@ def write_xml_annots(dest_dir,annots):
     else:
       truncated = 0
 
-    # Convert bounding boxes to pixel dimensions
+    # Convert bounding boxes to pixel dimensions, set minimum as 1
     xmin_pix = int(float(image_width)*xmin_frac)
+    if xmin_pix == 0: xmin_pix = 1
     ymin_pix = int(float(image_height)*ymin_frac)
+    if ymin_pix == 0: ymin_pix = 1
     xmax_pix = int(float(image_width)*xmax_frac)
     ymax_pix = int(float(image_height)*ymax_frac)
 
