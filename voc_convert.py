@@ -194,47 +194,48 @@ def write_xml_annots(dest_dir,annots):
     obj_id     = annot[4]
     annot_name = yt_id+'+'+class_id+'+'+obj_id+'+'+annot_time
     filename   = annot_name+'.jpg'
+    frame_path = dest_dir + 'youtubebbdevkit2017/youtubebb2017/JPEGImages/'
 
-    # Get image dimensions
-    img = Image.open(dest_dir + \
-                     'youtubebbdevkit2017/youtubebb2017/JPEGImages/' + \
-                     filename)
-    image_width,image_height  = img.size
+    # Check to verify the frame was extracted
+    if (os.path.exists(frame_path+filename)):
+      # Get image dimensions
+      img = Image.open(frame_path+filename)
+      image_width,image_height  = img.size
 
-    # Check to see if this annotation is on the border
-    # (likely a truncated annotation)
-    xmin_frac = float(annot[6])
-    xmax_frac = float(annot[7])
-    ymin_frac = float(annot[8])
-    ymax_frac = float(annot[9])
-    if ( (xmin_frac == 0.0) or (xmax_frac == 1.0) or \
-            (ymin_frac == 0.0) or (ymax_frac == 1.0) ):
-      truncated = 1
-    else:
-      truncated = 0
+      # Check to see if this annotation is on the border
+      # (likely a truncated annotation)
+      xmin_frac = float(annot[6])
+      xmax_frac = float(annot[7])
+      ymin_frac = float(annot[8])
+      ymax_frac = float(annot[9])
+      if ( (xmin_frac == 0.0) or (xmax_frac == 1.0) or \
+              (ymin_frac == 0.0) or (ymax_frac == 1.0) ):
+        truncated = 1
+      else:
+        truncated = 0
 
-    # Convert bounding boxes to pixel dimensions, set minimum as 1
-    xmin_pix = int(float(image_width)*xmin_frac)
-    if xmin_pix == 0: xmin_pix = 1
-    ymin_pix = int(float(image_height)*ymin_frac)
-    if ymin_pix == 0: ymin_pix = 1
-    xmax_pix = int(float(image_width)*xmax_frac)
-    ymax_pix = int(float(image_height)*ymax_frac)
+      # Convert bounding boxes to pixel dimensions, set minimum as 1
+      xmin_pix = int(float(image_width)*xmin_frac)
+      if xmin_pix == 0: xmin_pix = 1
+      ymin_pix = int(float(image_height)*ymin_frac)
+      if ymin_pix == 0: ymin_pix = 1
+      xmax_pix = int(float(image_width)*xmax_frac)
+      ymax_pix = int(float(image_height)*ymax_frac)
 
-    xml_params = youtube_bb.xml_annot( \
-      annot_name,
-      filename,
-      annot,
-      image_width,
-      image_height,
-      truncated,
-      xmin_pix,
-      ymin_pix,
-      xmax_pix,
-      ymax_pix)
+      xml_params = youtube_bb.xml_annot( \
+        annot_name,
+        filename,
+        annot,
+        image_width,
+        image_height,
+        truncated,
+        xmin_pix,
+        ymin_pix,
+        xmax_pix,
+        ymax_pix)
 
-    write_xml_annot(dest_dir,xml_params)
-    xml_annots.append(xml_params)
+      write_xml_annot(dest_dir,xml_params)
+      xml_annots.append(xml_params)
   return xml_annots
 
 
