@@ -15,6 +15,7 @@ from ffmpy import FFmpeg
 from subprocess import check_call
 from concurrent import futures
 from random import shuffle
+from datetime import datetime
 import subprocess
 import youtube_dl
 import socket
@@ -281,6 +282,9 @@ def sched_downloads(d_set,dl_dir,num_threads,vids):
 
   # Make the directory for this dataset
   check_call(['mkdir', '-p', d_set_dir])
+
+  # Tell the user when downloads were started
+  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
   # Download and cut in parallel threads giving
   with futures.ProcessPoolExecutor(max_workers=num_threads) as executor:
