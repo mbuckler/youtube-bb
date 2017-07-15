@@ -159,6 +159,8 @@ def write_xml_annot(dest_dir,xml_params):
     object_ = SubElement(xml_annot, 'object')
     class_name = SubElement(object_, 'name')
     class_name.text = xml_params.class_name
+    pose = SubElement(object_, 'pose')
+    pose.text = xml_params.pose
     truncated = SubElement(object_, 'truncated')
     truncated.text = xml_params.truncated
     difficult = SubElement(object_, 'difficult')
@@ -331,6 +333,8 @@ if __name__ == '__main__':
               dest_dir+'youtubebbdevkit2017/youtubebb2017/JPEGImages'])
   check_call(['mkdir','-p',
               dest_dir+'youtubebbdevkit2017/youtubebb2017/Annotations'])
+  check_call(['mkdir','-p',
+              dest_dir+'youtubebbdevkit2017/results/youtubebb2017/Main'])
 
   # Decode frames for training detection
   train_frame_annots = decode_frames('yt_bb_detection_train',

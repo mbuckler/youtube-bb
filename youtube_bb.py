@@ -28,8 +28,8 @@ import csv
 d_sets = [
           'yt_bb_detection_validation',
           'yt_bb_detection_train',
-          'yt_bb_classification_train',
-          'yt_bb_classification_validation',
+          #'yt_bb_classification_train',
+          #'yt_bb_classification_validation',
           ]
 
 # The classes included and their indices
@@ -126,6 +126,7 @@ class xml_annot(object):
     self.image_depth    = str(3)
     self.segmented      = str(0)
     self.class_name     = annotation[3]
+    self.pose           = "Unspecified"
     self.truncated      = str(truncated)
     self.difficult      = str(0)
     self.xmin           = str(xmin)
