@@ -43,7 +43,7 @@ cuts these videos down to the range in which they have been
 annotated. Parallel video downloads are supported so that you can
 saturate your download bandwith even though YouTube throttles per-video. Because
 video clips are cut with FFmpeg re-encoding ([see here for
-why](http://www.markbuckler.com/post/cutting-ffmpeg/)) the bottleneck is now
+why](http://www.markbuckler.com/post/cutting-ffmpeg/)) the bottleneck is
 compute speed rather than download speed. For this reason, set the number of
 threads to the number of cores on your machine for best results.
 
