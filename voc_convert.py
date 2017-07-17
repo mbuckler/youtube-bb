@@ -8,6 +8,9 @@
 # videos into frames. If you do not yet have the source videos then
 # be sure to run the download script first.
 #
+# Original VOC 2007 Dataset devkit documentation:
+# http://host.robots.ox.ac.uk/pascal/VOC/voc2007/devkit_doc_07-Jun-2007.pdf
+#
 # Author: Mark Buckler
 #
 ########################################################################
