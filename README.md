@@ -37,8 +37,7 @@ Note: You will need to use at least Python 3.0. This script was developed with P
 
 ### Download
 
-The `download.py` script is provided for users who are interested in
-downloading the videos which accompany the provided annotations. It also
+The `download.py` script is provided for the annoted videos. It also
 cuts these videos down to the range in which they have been
 annotated. Parallel video downloads are supported so that you can
 saturate your download bandwith even though YouTube throttles per-video. Because
@@ -54,10 +53,9 @@ threads to the number of cores on your machine for best results.
 
 ### VOC 2007 Converter
 
-Full video data is useful, but if you want just the annotated frames you can use
-the VOC 2007 Converter. This script decodes the annotated frames and converts
-the CSV annotations into the VOC 2007 XML format. For documentatation about the
-VOC 2007 development kit [see
+For the detection task, a script for decoding frames and converting
+the CSV annotations into the VOC 2007 XML format is provided. For
+documentatation about the original VOC 2007 development kit and format [see
 here](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/devkit_doc_07-Jun-2007.pdf).
 
 	python3 voc_convert.py [VID_DIR] [DSET_DEST] [NUM_THREADS] [NUM_TRAIN] [NUM_VAL] [INCL_ABS]
