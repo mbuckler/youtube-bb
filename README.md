@@ -47,7 +47,7 @@ why](http://www.markbuckler.com/post/cutting-ffmpeg/)) the bottleneck is now
 compute speed rather than download speed. For this reason, set the number of
 threads to the number of cores on your machine for best results.
 
-	`python3 download.py [VID_DIR] [NUM_THREADS]`
+	python3 download.py [VID_DIR] [NUM_THREADS]
 
 - `[VID_DIR]` Directory to download videos into
 - `[NUM_THREADS` Number of threads to use for downloading and cutting
@@ -60,7 +60,7 @@ the CSV annotations into the VOC 2007 XML format. For documentatation about the
 VOC 2007 development kit [see
 here](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/devkit_doc_07-Jun-2007.pdf).
 
-	`python3 voc_convert.py [VID_DIR] [DSET_DEST] [NUM_THREADS] [NUM_TRAIN] [NUM_VAL] [INCL_ABS]`
+	python3 voc_convert.py [VID_DIR] [DSET_DEST] [NUM_THREADS] [NUM_TRAIN] [NUM_VAL] [INCL_ABS]
 
 
 - `[VID_DIR]` The source directory where you downloaded videos into
@@ -77,7 +77,7 @@ If you are interested in decoding all videos into still frames, a full decode
 script is also provided. The script decodes all frames within the clips at 30
 frames per second.
 
-	`python3 decode.py [VID_DIR] [FRAME_DIR]`
+	python3 decode.py [VID_DIR] [FRAME_DIR]
 
 - `[VID_DIR]` The source directory where you downloaded videos into
 - `[FRAME_DIR]` The destination directory where you want the decoded frames
