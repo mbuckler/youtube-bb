@@ -49,8 +49,8 @@ threads to the number of cores on your machine for best results.
 
 	`python3 download.py [VID_DIR] [NUM_THREADS]`
 
-	- `[VID_DIR]` Directory to download videos into
-	- `[NUM_THREADS` Number of threads to use for downloading and cutting
+- `[VID_DIR]` Directory to download videos into
+- `[NUM_THREADS` Number of threads to use for downloading and cutting
 
 ### VOC 2007 Converter
 
@@ -63,13 +63,13 @@ here](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/devkit_doc_07-Jun-2007.pdf)
 	`python3 voc_convert.py [VID_DIR] [DSET_DEST] [NUM_THREADS] [NUM_TRAIN] [NUM_VAL] [INCL_ABS]`
 
 
-	- `[VID_DIR]` The source directory where you downloaded videos into
- 	- `[DSET_DEST]` The destination directory for the converted dataset
- 	- `[NUM_THREADS]` The number of threads to use for frame decoding
- 	- `[NUM_TRAIN]` The number of training images to decode. Use 0 to decode all.
- 	- `[NUM_VAL]` The number of validation images to decode. Use 0 to decode all.
- 	- `[INCL_ABS]` Flag to include (1) or not include (0) frames in which the object
-       of interest is absent.
+- `[VID_DIR]` The source directory where you downloaded videos into
+- `[DSET_DEST]` The destination directory for the converted dataset
+- `[NUM_THREADS]` The number of threads to use for frame decoding
+- `[NUM_TRAIN]` The number of training images to decode. Use 0 to decode all.
+- `[NUM_VAL]` The number of validation images to decode. Use 0 to decode all.
+- `[INCL_ABS]` Flag to include (1) or not include (0) frames in which the object
+   of interest is absent.
 
 ### Full Decode
 
@@ -79,5 +79,5 @@ frames per second.
 
 	`python3 decode.py [VID_DIR] [FRAME_DIR]`
 
-	- `[VID_DIR]` The source directory where you downloaded videos into
-	- `[FRAME_DIR]` The destination directory where you want the decoded frames
+- `[VID_DIR]` The source directory where you downloaded videos into
+- `[FRAME_DIR]` The destination directory where you want the decoded frames
