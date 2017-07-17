@@ -1,18 +1,18 @@
 # YouTube BoundingBox
 
 This repo contains helpful scripts for using the [YouTube BoundingBoxes](
-https://research.google.com/youtube-bb/index.html) 
-dataset released by Google Research. The only current hosting method 
-provided for the dataset is [annotations in csv
-form](https://research.google.com/youtube-bb/download.html). The csv files contain links to the videos on YouTube, but it's up to you to download the video files themselves. For this
-reason, these scripts are provided for downloading, cutting, and decoding
-the videos into a usable form.
+https://research.google.com/youtube-bb/index.html) dataset released by Google
+Research. The only current hosting method provided for the dataset is
+[annotations in csv form](https://research.google.com/youtube-bb/download.html).
+The csv files contain links to the videos on YouTube, but it's up to you to
+download the video files themselves. For this reason, these scripts are provided
+for downloading, cutting, and decoding the videos into a usable form.
 
-These scripts were written by Mark Buckler and the YouTube BoundingBoxes
-dataset was created and curated by Esteban Real, Jonathon Shlens,
-Stefano Mazzocchi, Xin Pan, and Vincent Vanhoucke. The dataset web page
-is [here](https://research.google.com/youtube-bb/index.html) and the
-accompanying whitepaper is [here](https://arxiv.org/abs/1702.00824).
+These scripts were written by Mark Buckler and the YouTube BoundingBoxes dataset
+was created and curated by Esteban Real, Jonathon Shlens, Stefano Mazzocchi, Xin
+Pan, and Vincent Vanhoucke. The dataset web page is
+[here](https://research.google.com/youtube-bb/index.html) and the accompanying
+whitepaper is [here](https://arxiv.org/abs/1702.00824).
 
 ## Installing the dependencies
 
@@ -41,19 +41,43 @@ The `download.py` script is provided for users who are interested in
 downloading the videos which accompany the provided annotations. It also
 cuts these videos down to the range in which they have been
 annotated. Parallel video downloads are supported so that you can
-saturate your download bandwith even though YouTube throttles per-video.
-I was able to download the Detection Validation videos (412 GB) in
-roughly 3 hours.
+saturate your download bandwith even though YouTube throttles per-video. Because
+video clips are cut with FFmpeg re-encoding ([see here for
+why](http://www.markbuckler.com/post/cutting-ffmpeg/)) the bottleneck is now
+compute speed rather than download speed. For this reason, set the number of
+threads to the number of cores on your machine for best results.
 
-Run `python download.py [VIDEO_DIR] [NUM_THREADS]` to download the dataset into the specified
-directory. If you don't provide a path, a directory named `videos` will be
-created. 
+	`python3 download.py [VID_DIR] [NUM_THREADS]`
 
-### Decode
+	- `[VID_DIR]` Directory to download videos into
+	- `[NUM_THREADS` Number of threads to use for downloading and cutting
 
-Once your downloading has completed you may be interested in decoding
-the videos into individual still frames. If this is the case, use the
-decoding script. The script decodes all frames within the clips at 30
+### VOC 2007 Converter
+
+Full video data is useful, but if you want just the annotated frames you can use
+the VOC 2007 Converter. This script decodes the annotated frames and converts
+the CSV annotations into the VOC 2007 XML format. For documentatation about the
+VOC 2007 development kit [see
+here](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/devkit_doc_07-Jun-2007.pdf).
+
+	`python3 voc_convert.py [VID_DIR] [DSET_DEST] [NUM_THREADS] [NUM_TRAIN] [NUM_VAL] [INCL_ABS]`
+
+
+	- `[VID_DIR]` The source directory where you downloaded videos into
+ 	- `[DSET_DEST]` The destination directory for the converted dataset
+ 	- `[NUM_THREADS]` The number of threads to use for frame decoding
+ 	- `[NUM_TRAIN]` The number of training images to decode. Use 0 to decode all.
+ 	- `[NUM_VAL]` The number of validation images to decode. Use 0 to decode all.
+ 	- `[INCL_ABS]` Flag to include (1) or not include (0) frames in which the object
+       of interest is absent.
+
+### Full Decode
+
+If you are interested in decoding all videos into still frames, a full decode
+script is also provided. The script decodes all frames within the clips at 30
 frames per second.
 
-Run `python decode.py [VIDEO_DIR] [FRAME_DIR]`. The first parameter is the directory where your videos were downloaded to (default: `videos`), and the second is where you would like the decoded frames to go (default: `frames`).
+	`python3 decode.py [VID_DIR] [FRAME_DIR]`
+
+	- `[VID_DIR]` The source directory where you downloaded videos into
+	- `[FRAME_DIR]` The destination directory where you want the decoded frames
