@@ -64,8 +64,10 @@ here](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/devkit_doc_07-Jun-2007.pdf)
 - `[VID_DIR]` The source directory where you downloaded videos into
 - `[DSET_DEST]` The destination directory for the converted dataset
 - `[NUM_THREADS]` The number of threads to use for frame decoding
-- `[NUM_TRAIN]` The number of training images to decode. Use 0 to decode all.
-- `[NUM_VAL]` The number of validation images to decode. Use 0 to decode all.
+- `[NUM_TRAIN]` The number of training images to decode. Use 0 to decode all
+  annotated frames
+- `[NUM_VAL]` The number of validation images to decode. Use 0 to decode all
+  annotated frames
 - `[INCL_ABS]` Flag to include (1) or not include (0) frames in which the object
    of interest is absent.
 
