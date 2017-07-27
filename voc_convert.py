@@ -91,9 +91,10 @@ def decode_frames(d_set,
     if (os.path.exists(annot_clip_path+annot_clip_name)):
       # If we are including all frames, or if the labeled object is present
       if ( include_absent or (annot[5]=='present') ):
-        # If this is not the last frame
+        # If this is not the first or last frame
         annot_clip = next((x for x in clips if x.name == clip_name), None)
-        if (int(annot_clip.stop) != int(annot[1])):
+        if ((int(annot_clip.stop ) != int(annot[1])) and \
+            (int(annot_clip.start) != int(annot[1])))):
           present_annots.append(annot)
 
   # Gather subset of random annotations
