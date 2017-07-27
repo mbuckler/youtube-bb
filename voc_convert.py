@@ -94,7 +94,7 @@ def decode_frames(d_set,
         # If this is not the first or last frame
         annot_clip = next((x for x in clips if x.name == clip_name), None)
         if ((int(annot_clip.stop ) != int(annot[1])) and \
-            (int(annot_clip.start) != int(annot[1])))):
+            (int(annot_clip.start) != int(annot[1]))):
           present_annots.append(annot)
 
   # Gather subset of random annotations
