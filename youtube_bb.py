@@ -26,10 +26,10 @@ import csv
 
 # The data sets to be downloaded
 d_sets = [
-          'yt_bb_detection_validation',
           'yt_bb_detection_train',
-          #'yt_bb_classification_train',
-          #'yt_bb_classification_validation',
+          'yt_bb_detection_validation',
+          'yt_bb_classification_train',
+          'yt_bb_classification_validation',
           ]
 
 # The classes included and their indices
@@ -154,7 +154,7 @@ def dl_and_cut(vid):
     if os.path.exists(d_set_dir+'/'+vid.yt_id+'_temp.mp4'):
       # Make the class directory if it doesn't exist yet
       class_dir = d_set_dir+'/'+str(clip.class_id)
-      check_call(['mkdir', '-p', class_dir])
+      check_call(['mkdir', '-p', class_dir], shell=True)
 
       # Cut out the clip within the downloaded video and save the clip
       # in the correct class directory. Full re-encoding is used to maintain
@@ -181,9 +181,9 @@ def parse_annotations(d_set,dl_dir):
   # Download & extract the annotation list
   if not os.path.exists(d_set+'.csv'):
     print (d_set+': Downloading annotations...')
-    check_call(['wget', web_host+d_set+'.csv.gz'])
+    check_call(['wget', web_host+d_set+'.csv.gz'], shell=True)
     print (d_set+': Unzipping annotations...')
-    check_call(['gzip', '-d', '-f', d_set+'.csv.gz'])
+    check_call(['gzip', '-d', '-f', d_set+'.csv.gz'], shell=True)
 
   print (d_set+': Parsing annotations into clip data...')
   # Parse csv data
@@ -282,7 +282,7 @@ def sched_downloads(d_set,dl_dir,num_threads,vids):
   d_set_dir = dl_dir+'/'+d_set+'/'
 
   # Make the directory for this dataset
-  check_call(['mkdir', '-p', d_set_dir])
+  check_call(['mkdir', '-p', d_set_dir], shell=True)
 
   # Tell the user when downloads were started
   datetime.now().strftime("%Y-%m-%d %H:%M:%S")
