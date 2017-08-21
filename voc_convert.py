@@ -31,6 +31,7 @@ from subprocess import check_call
 ## Decode all the clips in a given vid
 def decode_frame(clips,
                  annot,
+                 max_ratio,
                  d_set,
                  src_dir,
                  dest_dir):
@@ -65,12 +66,22 @@ def decode_frame(clips,
       (frame_dest+frame_name)],\
       stdout=FNULL,stderr=subprocess.STDOUT )
 
+  with Image.open(frame_dest+frame_name) as img:
+          width, height = img.size
+  # If this frame's aspect ratio exheeds the maximum aspect ratio
+  if ( (max_ratio!=0) and \
+         ( ((width/height) > max_ratio) or
+           ((height/width) > max_ratio) ) ):
+      os.remove(frame_dest+frame_name)
+
+
 
 def decode_frames(d_set,
                   src_dir,
                   dest_dir,
                   num_threads,
                   num_annots,
+                  max_ratio,
                   include_absent):
   # Get list of annotations
   # Download & extract the annotation list
@@ -111,7 +122,8 @@ def decode_frames(d_set,
   #for annot in annot_to_convert:
   #  decode_frame(clips,annot,d_set,src_dir,dest_dir)
   with futures.ProcessPoolExecutor(max_workers=num_threads) as executor:
-    fs = [executor.submit(decode_frame,clips,annot,d_set,src_dir,dest_dir) \
+    fs = [executor.submit( \
+            decode_frame,clips,annot,max_ratio,d_set,src_dir,dest_dir) \
             for annot in annot_to_convert]
     for i, f in enumerate(futures.as_completed(fs)):
       # Write progress to error so that it can be seen
@@ -305,15 +317,16 @@ def write_txt_files(dest_dir, train_xml_annots, val_xml_annots):
 
 if __name__ == '__main__':
 
-  assert(len(sys.argv) == 7), \
+  assert(len(sys.argv) == 8), \
     ["Usage: python voc_convert.py [VID_SOURCE] [DSET_DEST] [NUM_THREADS]",
-     "[NUM_TRAIN] [NUM_VAL] [INCL_ABS]"]
+     "[NUM_TRAIN] [NUM_VAL] [MAX_RATIO] [INCL_ABS]"]
   src_dir          = sys.argv[1]+'/'
   dest_dir         = sys.argv[2]+'/'
   num_threads      = int(sys.argv[3])
   num_train_frames = int(sys.argv[4])
   num_val_frames   = int(sys.argv[5])
-  assert((sys.argv[6]=='0')or(sys.argv[6]=='1')), \
+  max_ratio        = float(sys.argv[6])
+  assert((sys.argv[7]=='0')or(sys.argv[7]=='1')), \
     ["Please indicate if frames with absent objects should be included with",
      "a 1, or should not be included with a 0"]
   if sys.argv[6] == '1':
@@ -347,6 +360,7 @@ if __name__ == '__main__':
     dest_dir,
     num_threads,
     num_train_frames,
+    max_ratio,
     include_absent)
 
   # Write the xml annotations for training detection
@@ -358,6 +372,7 @@ if __name__ == '__main__':
     dest_dir,
     num_threads,
     num_val_frames,
+    max_ratio,
     include_absent)
 
   # Write the xml annotations for validation detection

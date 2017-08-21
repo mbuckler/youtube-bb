@@ -68,6 +68,9 @@ here](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/devkit_doc_07-Jun-2007.pdf)
   annotated frames
 - `[NUM_VAL]` The number of validation images to decode. Use 0 to decode all
   annotated frames
+- `[MAX_RATIO]` The maximum aspect ratio allowed. If the value is set to 0 then
+  all frames will be decoded. Otherwise all frames with aspect ratios greater
+  than the maximum will be deleted and not included in xml annotations.
 - `[INCL_ABS]` Flag to include (1) or not include (0) frames in which the object
    of interest is absent.
 
