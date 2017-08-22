@@ -58,9 +58,8 @@ the CSV annotations into the VOC 2007 XML format is provided. For
 documentatation about the original VOC 2007 development kit and format [see
 here](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/devkit_doc_07-Jun-2007.pdf).
 If you are interested in training [Faster RCNN](https://arxiv.org/abs/1506.01497)
-on this dataset, I have also made public my updated my modifications to the
-PyCaffe version. [See here](https://github.com/mbuckler/py-faster-rcnn-youtubebb)
-for that code.
+on this dataset, [see here](https://github.com/mbuckler/py-faster-rcnn-youtubebb)
+for my updates to the PyCaffe implementation of Faster RCNN.
 
 	python3 voc_convert.py [VID_DIR] [DSET_DEST] [NUM_THREADS] [NUM_TRAIN] [NUM_VAL] [MAX_RATIO] [INCL_ABS]
 
