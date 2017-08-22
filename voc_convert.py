@@ -318,8 +318,8 @@ def write_txt_files(dest_dir, train_xml_annots, val_xml_annots):
 if __name__ == '__main__':
 
   assert(len(sys.argv) == 8), \
-    ["Usage: python voc_convert.py [VID_SOURCE] [DSET_DEST] [NUM_THREADS]",
-     "[NUM_TRAIN] [NUM_VAL] [MAX_RATIO] [INCL_ABS]"]
+    "Usage: python voc_convert.py [VID_SOURCE] [DSET_DEST] [NUM_THREADS] " \
+    "[NUM_TRAIN] [NUM_VAL] [MAX_RATIO] [INCL_ABS]"
   src_dir          = sys.argv[1]+'/'
   dest_dir         = sys.argv[2]+'/'
   num_threads      = int(sys.argv[3])
