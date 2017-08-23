@@ -186,15 +186,14 @@ def parse_annotations(d_set,dl_dir):
     check_call(' '.join(['gzip', '-d', '-f', d_set+'.csv.gz']), shell=True)
 
   print (d_set+': Parsing annotations into clip data...')
-  # Parse csv data
-  with open((d_set+'.csv'), 'rt') as f:
-    reader      = csv.reader(f)
-    annotations = list(reader)
 
-  # Convert the annotation timestamps to be integers for correct sorting
-  annotations = [ \
-    [x[0],int(x[1]),x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]] \
-      for x in annotations ]
+  # Parse csv data.
+  annotations = []
+  with open((d_set+'.csv'), 'rt') as f:
+    reader = csv.reader(f)
+    for x in reader:
+      annotations.append((x[0], int(x[1]), x[2], x[3], x[4], x[5], x[6],
+                          x[7], x[8], x[9]))
 
   # Sort to de-interleave the annotations for easier parsing
   if ('classification' in d_set):
