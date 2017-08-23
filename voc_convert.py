@@ -121,14 +121,20 @@ def decode_frames(d_set,
   # Run frame decoding in parallel, extract frames from each video
   #for annot in annot_to_convert:
   #  decode_frame(clips,annot,d_set,src_dir,dest_dir)
-  with futures.ProcessPoolExecutor(max_workers=num_threads) as executor:
+  with futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
     fs = [executor.submit( \
             decode_frame,clips,annot,max_ratio,d_set,src_dir,dest_dir) \
             for annot in annot_to_convert]
     for i, f in enumerate(futures.as_completed(fs)):
-      # Write progress to error so that it can be seen
-      sys.stderr.write( \
-        "Decoded frame: {} / {} \r".format(i, len(annot_to_convert)))
+      # Check for an exception in the workers.
+      try:
+        f.result()
+      except Exception as exc:
+        print('decode failed', exc)
+      else:
+        # Write progress to error so that it can be seen
+        sys.stderr.write( \
+          "Decoded frame: {} / {} \r".format(i, len(annot_to_convert)))
 
   print(d_set+': Finished decoding frames!')
 

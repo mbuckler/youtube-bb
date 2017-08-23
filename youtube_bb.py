@@ -186,30 +186,25 @@ def parse_annotations(d_set,dl_dir):
     check_call(' '.join(['gzip', '-d', '-f', d_set+'.csv.gz']), shell=True)
 
   print (d_set+': Parsing annotations into clip data...')
-  # Parse csv data
+
+  # Parse csv data.
+  annotations = []
   with open((d_set+'.csv'), 'rt') as f:
-    reader      = csv.reader(f)
+    reader = csv.reader(f)
     annotations = list(reader)
 
-  # Convert the annotation timestamps to be integers for correct sorting
-  annotations = [ \
-    [x[0],int(x[1]),x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]] \
-      for x in annotations ]
-
-  # Sort to de-interleave the annotations for easier parsing
+  # Sort to de-interleave the annotations for easier parsing. We use
+  # `int(l[1])` to sort by the timestamps numerically; the other fields are
+  # sorted lexicographically as strings.
+  print(d_set + ': Sorting annotations...')
   if ('classification' in d_set):
     class_or_det = 'class'
     # Sort by youtube_id, class, and then timestamp
-    annotations.sort(key=lambda l: (l[0],l[2],l[1]))
+    annotations.sort(key=lambda l: (l[0], l[2], int(l[1])))
   elif ('detection' in d_set):
     class_or_det = 'det'
     # Sort by youtube_id, class, obj_id and then timestamp
-    annotations.sort(key=lambda l: (l[0],l[2],l[4],l[1]))
-
-  # Convert timestamps back to strings for rest of pipeline
-  annotations = [ \
-    [x[0],str(x[1]),x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]] \
-      for x in annotations ]
+    annotations.sort(key=lambda l: (l[0], l[2], l[4], int(l[1])))
 
   current_clip_name = ['blank']
   clips             = []
