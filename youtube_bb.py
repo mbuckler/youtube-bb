@@ -164,7 +164,7 @@ def dl_and_cut(vid):
         '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
         '-ss', str(float(clip.start)/1000),\
         '-strict','-2',\
-        '-t', str((float(clip.start)+float(clip.stop))/1000),\
+        '-t', str((float(clip.stop)-float(clip.start))/1000),\
         '-threads','1',\
         class_dir+'/'+clip.name+'.mp4'],
          stdout=FNULL,stderr=subprocess.STDOUT )
