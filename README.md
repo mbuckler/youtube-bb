@@ -51,7 +51,7 @@ threads to the number of cores on your machine for best results.
 - `[VID_DIR]` Directory to download videos into
 - `[NUM_THREADS` Number of threads to use for downloading and cutting
 
-### VOC 2007 Converter
+### Object Detection Decoder & VOC 2007 Converter
 
 For the detection task, a script for decoding frames and converting
 the CSV annotations into the VOC 2007 XML format is provided. For
@@ -77,13 +77,23 @@ for my updates to the PyCaffe implementation of Faster RCNN.
 - `[INCL_ABS]` Flag to include (1) or not include (0) frames in which the object
    of interest is absent.
 
-### Full Decode
+### Classification Decoder
 
-If you are interested in decoding all videos into still frames, a full decode
-script is also provided. The script decodes all frames within the clips at 30
-frames per second.
+A decoding script has also been provided for the classification task. Usage is
+similar to the object detection decoder. Decoded frames are sorted into
+directories according to class.
 
-	python3 decode.py [VID_DIR] [FRAME_DIR]
+	python3 class_decode.py [VID_DIR] [FRAME_DEST] [NUM_THREADS] [NUM_TRAIN] [NUM_VAL] [MAX_RATIO] [INCL_ABS]
 
 - `[VID_DIR]` The source directory where you downloaded videos into
-- `[FRAME_DIR]` The destination directory where you want the decoded frames
+- `[FRAME_DEST]` The top level directory where class folders containing frames will be
+- `[NUM_THREADS]` The number of threads to use for frame decoding
+- `[NUM_TRAIN]` The number of training images to decode. Use 0 to decode all
+  annotated frames
+- `[NUM_VAL]` The number of validation images to decode. Use 0 to decode all
+  annotated frames
+- `[MAX_RATIO]` The maximum aspect ratio allowed. If the value is set to 0 then
+  all frames will be decoded. Otherwise all frames with aspect ratios greater
+  than the maximum will be deleted and not included in xml annotations.
+- `[INCL_ABS]` Flag to include (1) or not include (0) frames in which the object
+   of interest is absent.
