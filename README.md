@@ -8,7 +8,8 @@ The csv files contain links to the videos on YouTube, but it's up to you to
 download the video files themselves. For this reason, these scripts are provided
 for downloading, cutting, and decoding the videos into a usable form.
 
-These scripts were written by Mark Buckler and the YouTube BoundingBoxes dataset
+These scripts were written by [Mark Buckler](http://www.markbuckler.com/) 
+and the YouTube BoundingBoxes dataset
 was created and curated by Esteban Real, Jonathon Shlens, Stefano Mazzocchi, Xin
 Pan, and Vincent Vanhoucke. The dataset web page is
 [here](https://research.google.com/youtube-bb/index.html) and the accompanying
