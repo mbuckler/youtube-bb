@@ -24,6 +24,9 @@ import io
 import sys
 import csv
 
+# Debug flag. Set this to true if you would like to see ffmpeg errors
+debug = False
+
 # The data sets to be downloaded
 d_sets = [
           'yt_bb_detection_train',
@@ -160,14 +163,24 @@ def dl_and_cut(vid):
       # in the correct class directory. Full re-encoding is used to maintain
       # frame accuracy. See here for more detail:
       # http://www.markbuckler.com/post/cutting-ffmpeg/
-      check_call(['ffmpeg',\
-        '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
-        '-ss', str(float(clip.start)/1000),\
-        '-strict','-2',\
-        '-t', str((float(clip.stop)-float(clip.start))/1000),\
-        '-threads','1',\
-        class_dir+'/'+clip.name+'.mp4'],
-         stdout=FNULL,stderr=subprocess.STDOUT )
+      if debug:
+          check_call(['ffmpeg',\
+            '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
+            '-ss', str(float(clip.start)/1000),\
+            '-strict','-2',\
+            '-t', str((float(clip.stop)-float(clip.start))/1000),\
+            '-threads','1',\
+            class_dir+'/'+clip.name+'.mp4'])
+      else:
+          # If not debugging, hide the error outputs from failed downloads
+          check_call(['ffmpeg',\
+            '-i','file:'+d_set_dir+'/'+vid.yt_id+'_temp.mp4',\
+            '-ss', str(float(clip.start)/1000),\
+            '-strict','-2',\
+            '-t', str((float(clip.stop)-float(clip.start))/1000),\
+            '-threads','1',\
+            class_dir+'/'+clip.name+'.mp4'],
+            stdout=FNULL,stderr=subprocess.STDOUT )
 
   # Remove the temporary video
   os.remove(d_set_dir+'/'+vid.yt_id+'_temp.mp4')
